@@ -1,0 +1,11 @@
+aws_region     = "eu-central-1"
+aws_access_key = "..."
+aws_secret_key = "..."
+ssh_public_key = "/home/user/.ssh/certification.pub"
+custom_tags = {
+  Name      = "diu-eks-cluster-tag"
+  Terraform = "true"
+  Delete    = "true"
+}
+
+eks-cluster-name = "diu-eks-cluster"
