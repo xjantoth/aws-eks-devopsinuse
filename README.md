@@ -67,11 +67,157 @@
 
 
 
-
 ### 6. Install awscli and kubectl binaries
-### 7. Retrive programatic access from AWS
+
+* **Install** awscli binary
+https://docs.aws.amazon.com/cli/latest/userguide/install-linux-al2017.html
+
+* Please **configure** these two files:
+  - ~/.aws/credentials
+  - ~/.aws/config
+
+
+![](img/aws-cli-1.png)
+
+Link: https://kubernetes.io/docs/tasks/tools/install-kubectl/
+
+```
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.18.0/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin/kubectl
+kubectl version --client
+```
+![](img/kubectl-1.png)
+
+### 7. Retrive programatic access from AWS and configure aws cli
+
+![](img/aws-cli-2.png)
+
+![](img/aws-cli-3.png)
+
+![](img/aws-cli-4.png)
+
+
+**edit file:** `~/.aws/credentials`
+```bash
+vim  ~/.aws/credentials
+
+...
+[terraform]
+aws_access_key_id = ...
+aws_secret_access_key = ...
+
+[devopsinuse]
+aws_access_key_id = ...
+aws_secret_access_key = ...
+...
+
+:wq!
+```
+
+**edit file:** `~/.aws/config`
+
+```bash
+vim ~/.aws/config
+
+...
+[profile terraform]
+region=eu-central-1
+
+[profile devopsinuse]
+region=eu-central-1
+...
+
+:wq!
+```
+
+**Make sure** that your `aws` is configured correctly and can talk to AWS
+```bash
+aws iam list-users --profile devopsinuse
+{
+    "Users": [
+        {
+            "Path": "/",
+            "UserName": "devopsinuse",
+            "UserId": "AFSDFSDFSDFSDFSD",
+            "Arn": "arn:aws:iam::61111111116:user/devopsinuse",
+            "CreateDate": "2020-04-20T08:03:36Z",
+            "PasswordLastUsed": "2020-04-28T18:25:07Z"
+        },
+        {
+            "Path": "/",
+            "UserName": "terraform",
+            "UserId": "ADSGDSDASDASFSDFSDB",
+            "Arn": "arn:aws:iam::61111111116:user/terraform",
+            "CreateDate": "2020-04-28T10:24:32Z"
+        }
+    ]
+}
+```
 ### 8. Create EKS control plane IAM role in AWS web console
+
+![](img/eks-iam-cluster-role-1.png)
+
+![](img/eks-iam-cluster-role-2.png)
+
+![](img/eks-iam-cluster-role-3.png)
+
+![](img/eks-iam-cluster-role-4.png)
+
+![](img/eks-iam-cluster-role-5.png)
+
+![](img/eks-iam-cluster-role-6.png)
+
+![](img/eks-iam-cluster-role-7.png)
+
+
 ### 9. Create EKS node group  IAM role in AWS web console
+
+Find **Roles** section under ***Identity and Access Management (IAM)***
+
+![](img/eks-iam-cluster-role-1.png)
+
+Click at ***EC2*** from *Choose a use case* menu when creating AWS IAM role for ***EKS node group***
+
+![](img/eks-iam-node-group-1.png)
+
+
+**Search manually** for these **3 policies** for **EKS node group** and 
+mark then once found in **checkbox**
+* *AmazonEC2ContainerRegistryReadOnly*
+
+![](img/eks-iam-node-group-2.png)
+
+**Search manually** for these **3 policies** for **EKS node group** and 
+mark then once found in **checkbox**
+* *AmazonEKSWorkerNodePolicy*
+
+![](img/eks-iam-node-group-3.png)
+
+**Search manually** for these **3 policies** for **EKS node group** and 
+mark then once found in **checkbox**
+* *AmazonEKS_CNI_Policy*
+
+This time you can ***click: Next: Tags*** blue button if all **three** *IAM Policies* are **check-boxed**
+
+![](img/eks-iam-node-group-4.png)
+
+**Tags are optional** however, they help to identify leftovers once you want to clean your AWS account
+
+![](img/eks-iam-node-group-5.png)
+
+
+**Review** your AWS IAM role and assign some **Role name** to it ***e.g. DIU-EKSNodeGroupRole***
+
+![](img/eks-iam-node-group-6.png)
+
+Role ***DIU-EKSNodeGroupRole*** is finally created
+
+![](img/eks-iam-node-group-7.png)
+
+
+
+
 ### 10. Create EKS cluster in AWS web console
 ### 11. Create EKS node group in AWS web console
 ### 12. Create KUBECONFIG at your local
