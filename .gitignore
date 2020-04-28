@@ -1,3 +1,4 @@
+core/terraform.certification.tfvars
 core/terraform.eks.tfvars
 core/terraform.tfstate
 core/.terraform
