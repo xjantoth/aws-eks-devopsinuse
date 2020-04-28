@@ -1,8 +1,8 @@
-core/terraform.certification.tfvars
+core/terraform.eks.tfvars
 core/terraform.tfstate
 core/.terraform
 
-eks-terraform/terraform.certification.tfvars
+eks-terraform/terraform.eks.tfvars
 eks-terraform/terraform.tfstate
 eks-terraform/terraform.tfstate.backup
 
