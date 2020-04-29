@@ -1,0 +1,92 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          readOnly: true
+          name: nginx-cm
+          subPath: index.html
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/bootstrap.min.css
+          readOnly: true
+          name: nginx-cm
+          subPath: bootstrap.min.css
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/bootstrap.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: bootstrap.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/Chart.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: Chart.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/dashboard.css
+          readOnly: true
+          name: nginx-cm
+          subPath: dashboard.css
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/feather.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: feather.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/jquery-3.2.1.slim.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: jquery-3.2.1.slim.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/popper.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: popper.min.js
+      
+      volumes:
+      # Do not forget to run this command up front
+      # kubectl create configmap nginx-cm --from-file=index-eks-nginx-manual.html
+      - name: nginx-cm
+        configMap:
+          name: nginx-cm 
+          items:
+            - key: index-eks-nginx-manual.html
+              path: index.html
+            - key: bootstrap.min.css
+              path: bootstrap.min.css
+            - key: bootstrap.min.js
+              path: bootstrap.min.js
+            - key: Chart.min.js
+              path: Chart.min.js
+            - key: dashboard.css
+              path: dashboard.css
+            - key: feather.min.js
+              path: feather.min.js
+            - key: jquery-3.2.1.slim.min.js
+              path: jquery-3.2.1.slim.min.js
+            - key: popper.min.js
+              path: popper.min.js
+
+              
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30111
+  selector:
+    app: nginx
+
+

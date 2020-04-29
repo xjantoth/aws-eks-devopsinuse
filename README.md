@@ -1,7 +1,24 @@
 
-1. Starting AWS EKS cluster manually in AWS web console
+**Starting AWS EKS cluster manually in AWS web console**
+ - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)
+ - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)
+ - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)
+ - [4. Create an extra user and group in AWS with admin privilages](#4-create-an-extra-user-and-group-in-aws-with-admin-privilages)
+ - [5. Install awscli and kubectl binaries](#5-install-awscli-and-kubectl-binaries)
+ - [6. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)
+ - [7. Create EKS control plane IAM role in AWS web console](#7-create-eks-control-plane-iam-role-in-aws-web-console)
+ - [8. Create EKS node group IAM role in AWS web console](#8-create-eks-node-group-iam-role-in-aws-web-console)
+ - [9. Create EKS cluster in AWS web console](#9-create-eks-cluster-in-aws-web-console)
+ - [10. Create EKS node group in AWS web console](#10-create-eks-node-group-in-aws-web-console)
+ - [11. Create KUBECONFIG at your local](#11-create-kubeconfig-at-your-local)
+ - [12. First NGINX deployment by kubectl to AWS EKS cluster created manually](#12-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)
+
+
+
+<!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
 
+<!-- - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)-->
 ### 2. Allow seeing billing data for IAM user
 
 * Login to your **root** AWS account in **AWS Free Tier**.<br/>
@@ -29,6 +46,7 @@
 
 ![](img/billing-permissions-2.png)
 
+<!-- - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)-->
 ### 3. Create budget in AWS to be notified by email
 
 ![](img/budget-1.png)
@@ -47,6 +65,7 @@
 
 ![](img/budget-8.png)
 
+<!-- - [4. Create an extra user and group in AWS with admin privilages](#4-create-an-extra-user-and-group-in-aws-with-admin-privilages)-->
 ### 4. Create an extra user and group in AWS with admin privilages
 
 ![](img/create-iam-1.png)
@@ -67,7 +86,8 @@
 
 
 
-### 6. Install awscli and kubectl binaries
+<!-- - [5. Install awscli and kubectl binaries](#5-install-awscli-and-kubectl-binaries)-->
+### 5. Install awscli and kubectl binaries
 
 * **Install** awscli binary
 https://docs.aws.amazon.com/cli/latest/userguide/install-linux-al2017.html
@@ -89,7 +109,8 @@ kubectl version --client
 ```
 ![](img/kubectl-1.png)
 
-### 7. Retrive programatic access from AWS and configure aws cli
+<!-- - [6. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)-->
+### 6. Retrive programatic access from AWS and configure aws cli
 
 ![](img/aws-cli-2.png)
 
@@ -154,7 +175,8 @@ aws iam list-users --profile devopsinuse
     ]
 }
 ```
-### 8. Create EKS control plane IAM role in AWS web console
+<!-- - [7. Create EKS control plane IAM role in AWS web console](#7-create-eks-control-plane-iam-role-in-aws-web-console)-->
+### 7. Create EKS control plane IAM role in AWS web console
 
 ![](img/eks-iam-cluster-role-1.png)
 
@@ -171,7 +193,8 @@ aws iam list-users --profile devopsinuse
 ![](img/eks-iam-cluster-role-7.png)
 
 
-### 9. Create EKS node group  IAM role in AWS web console
+<!-- - [8. Create EKS node group IAM role in AWS web console](#8-create-eks-node-group-iam-role-in-aws-web-console)-->
+### 8. Create EKS node group IAM role in AWS web console
 
 Find **Roles** section under ***Identity and Access Management (IAM)***
 
@@ -215,13 +238,414 @@ Role ***DIU-EKSNodeGroupRole*** is finally created
 
 ![](img/eks-iam-node-group-7.png)
 
+<!-- - [9. Create EKS cluster in AWS web console](#9-create-eks-cluster-in-aws-web-console)-->
+### 9. Create EKS cluster in AWS web console
+
+![](img/eks-control-plane-1.png)
+
+![](img/eks-control-plane-2.png)
+
+![](img/eks-control-plane-3.png)
+
+![](img/eks-control-plane-4.png)
+
+![](img/eks-control-plane-5.png)
+
+![](img/eks-control-plane-6.png)
 
 
+<!-- - [10. Create EKS node group in AWS web console](#10-create-eks-node-group-in-aws-web-console)-->
+### 10. Create EKS node group in AWS web console
 
-### 10. Create EKS cluster in AWS web console
-### 11. Create EKS node group in AWS web console
-### 12. Create KUBECONFIG at your local
-### 13. First NGINX deployment by kubectl to AWS EKS cluster created manually
+![](img/node-group-1.png)
+
+![](img/node-group-2.png)
+
+![](img/node-group-3.png)
+
+![](img/node-group-4.png)
+
+![](img/node-group-5.png)
+
+![](img/node-group-6.png)
+
+![](img/node-group-7.png)
+
+![](img/node-group-8.png)
+
+![](img/node-group-9.png)
+
+![](img/node-group-10.png)
+
+![](img/node-group-11.png)
+
+![](img/node-group-12.png)
+
+
+<!-- - [11. Create KUBECONFIG at your local](#11-create-kubeconfig-at-your-local)-->
+### 11. Create KUBECONFIG at your local
+
+**Run this** command get the content of your `~/.kube/config` file at your local
+
+```bash
+aws eks --region eu-central-1 update-kubeconfig --name diu-eks-cluster --profile devopsinuse
+
+Added new context arn:aws:eks:eu-central-1:611111111116:cluster/diu-eks-cluster to /home/username/.kube/config
+```
+
+**If you now go and take** a look what is inside the file: `~/.kube/config`, you will find a correct connection settings to be able to **communicate** with your **AWS EKS Kubernetes cluster** under your **AWS Free Tier account**
+
+
+Run following commands to make sure that you can communicte with your **AWS EKS Kubernetes cluster** under your **AWS Free Tier account**
+
+```bash
+kubectl get nodes
+NAME                                            STATUS   ROLES    AGE     VERSION
+ip-172-31-20-97.eu-central-1.compute.internal   Ready    <none>   9m2s    v1.15.10-eks-bac369
+ip-172-31-3-232.eu-central-1.compute.internal   Ready    <none>   8m55s   v1.15.10-eks-bac369
+
+kubectl get pods -A
+NAMESPACE     NAME                       READY   STATUS    RESTARTS   AGE
+kube-system   aws-node-ldt44             1/1     Running   0          9m14s
+kube-system   aws-node-s6nb9             1/1     Running   0          9m7s
+kube-system   coredns-5b6dbb4b59-4rjkm   1/1     Running   0          23m
+kube-system   coredns-5b6dbb4b59-bnxs4   1/1     Running   0          23m
+kube-system   kube-proxy-ncm6q           1/1     Running   0          9m14s
+kube-system   kube-proxy-zffwq           1/1     Running   0          9m7s
+```
+
+<!-- - [12. First NGINX deployment by kubectl to AWS EKS cluster created manually](#12-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)-->
+### 12. First NGINX deployment by kubectl to AWS EKS cluster created manually
+
+```bash
+tree deployment-eks-nginx-manual 
+
+deployment-eks-nginx-manual
+├── deployment-eks-nginx-manual.html
+├── index-eks-nginx-manual_files
+│   ├── bootstrap.min.css
+│   ├── bootstrap.min.js
+│   ├── Chart.min.js
+│   ├── dashboard.css
+│   ├── feather.min.js
+│   ├── jquery-3.2.1.slim.min.js
+│   └── popper.min.js
+└── index-eks-nginx-manual.html
+```
+
+```bash
+
+cd deployment-eks-nginx-manual/
+
+
+kubectl create configmap nginx-cm \
+--from-file=index-eks-nginx-manual.html \
+--from-file=index-eks-nginx-manual_files/bootstrap.min.css \
+--from-file=index-eks-nginx-manual_files/bootstrap.min.js \ 
+--from-file=index-eks-nginx-manual_files/Chart.min.js \
+--from-file=index-eks-nginx-manual_files/dashboard.css \
+--from-file=index-eks-nginx-manual_files/feather.min.js \
+--from-file=index-eks-nginx-manual_files/jquery-3.2.1.slim.min.js \
+--from-file=index-eks-nginx-manual_files/popper.min.js
+```
+
+**Explore** file: `deployment-eks-nginx-manual.yaml` for creating **deployment** and **service** Kubernetes objects
+
+```yaml
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          readOnly: true
+          name: nginx-cm
+          subPath: index.html
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/bootstrap.min.css
+          readOnly: true
+          name: nginx-cm
+          subPath: bootstrap.min.css
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/bootstrap.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: bootstrap.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/Chart.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: Chart.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/dashboard.css
+          readOnly: true
+          name: nginx-cm
+          subPath: dashboard.css
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/feather.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: feather.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/jquery-3.2.1.slim.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: jquery-3.2.1.slim.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/popper.min.js
+          readOnly: true
+          name: nginx-cm
+          subPath: popper.min.js
+      
+      volumes:
+      # Do not forget to run this command up front
+      # kubectl create configmap nginx-cm --from-file=index-eks-nginx-manual.html
+      - name: nginx-cm
+        configMap:
+          name: nginx-cm 
+          items:
+            - key: index-eks-nginx-manual.html
+              path: index.html
+            - key: bootstrap.min.css
+              path: bootstrap.min.css
+            - key: bootstrap.min.js
+              path: bootstrap.min.js
+            - key: Chart.min.js
+              path: Chart.min.js
+            - key: dashboard.css
+              path: dashboard.css
+            - key: feather.min.js
+              path: feather.min.js
+            - key: jquery-3.2.1.slim.min.js
+              path: jquery-3.2.1.slim.min.js
+            - key: popper.min.js
+              path: popper.min.js
+
+              
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30111
+  selector:
+    app: nginx
+
+```
+**Allow** port `30111` in ***Security Group*** section in AWS console
+
+![](img/sg-2.png)
+
+
+**Execute deployment** of your **Nginx** web server with **custom content**
+```bash
+kubectl apply -f deployment-eks-nginx-manual.yaml
+```
+
+**Retrive** IP Addresses of your **physical nodes** in AWS
+
+```bash
+ kubectl get nodes -o wide | awk -F" " '{print $1"\t"$7}'
+NAME    EXTERNAL-IP
+ip-172-31-20-97.eu-central-1.compute.internal   35.157.105.203
+ip-172-31-3-232.eu-central-1.compute.internal   3.121.160.180
+```
+
+
+![](img/eks-manual-nginx-nodes-1.png)
+![](img/eks-manual-nginx-nodes-2.png)
+
+
+Explore Nginx pod by attaching to **a running container**
+
+```bash
+kubectl get pods                                    
+NAME                     READY   STATUS    RESTARTS   AGE
+nginx-6d786774cd-fmtgh   1/1     Running   0          31m
+
+kubectl exec -it  nginx-6d786774cd-fmtgh -- bash
+root@nginx-6d786774cd-fmtgh:/# 
+
+
+root@nginx-6d786774cd-fmtgh:/# ls usr/share/nginx/html/index* -l
+-rw-r--r-- 1 root root 10:17 usr/share/nginx/html/index.html
+
+usr/share/nginx/html/index-eks-nginx-manual_files:
+total 516
+-rw-r--r-- 1 root root  10:17 Chart.min.js
+-rw-r--r-- 1 root root  10:17 bootstrap.min.css
+-rw-r--r-- 1 root root  10:17 bootstrap.min.js
+-rw-r--r-- 1 root root  10:17 dashboard.css
+-rw-r--r-- 1 root root  10:17 feather.min.js
+-rw-r--r-- 1 root root  10:17 jquery-3.2.1.slim.min.js
+-rw-r--r-- 1 root root  10:17 popper.min.js
+```
+
+
+```bash
+kubectl get deployment nginx -o yaml         
+
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubectl.kubernetes.io/last-applied-configuration: | 
+      {...}
+  creationTimestamp: "..."
+  generation: 1
+  labels:
+    app: nginx
+  name: nginx
+  namespace: default
+  resourceVersion: "15772"
+  selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/nginx
+  uid: 83a88f7c-19f9-40b6-a3e6-76b6afc3f445
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: nginx
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/index.html
+          name: nginx-cm
+          readOnly: true
+          subPath: index.html
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/bootstrap.min.css
+          name: nginx-cm
+          readOnly: true
+          subPath: bootstrap.min.css
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/bootstrap.min.js
+          name: nginx-cm
+          readOnly: true
+          subPath: bootstrap.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/Chart.min.js
+          name: nginx-cm
+          readOnly: true
+          subPath: Chart.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/dashboard.css
+          name: nginx-cm
+          readOnly: true
+          subPath: dashboard.css
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/feather.min.js
+          name: nginx-cm
+          readOnly: true
+          subPath: feather.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/jquery-3.2.1.slim.min.js
+          name: nginx-cm
+          readOnly: true
+          subPath: jquery-3.2.1.slim.min.js
+        - mountPath: /usr/share/nginx/html/index-eks-nginx-manual_files/popper.min.js
+          name: nginx-cm
+          readOnly: true
+          subPath: popper.min.js
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: index-eks-nginx-manual.html
+            path: index.html
+          - key: bootstrap.min.css
+            path: bootstrap.min.css
+          - key: bootstrap.min.js
+            path: bootstrap.min.js
+          - key: Chart.min.js
+            path: Chart.min.js
+          - key: dashboard.css
+            path: dashboard.css
+          - key: feather.min.js
+            path: feather.min.js
+          - key: jquery-3.2.1.slim.min.js
+            path: jquery-3.2.1.slim.min.js
+          - key: popper.min.js
+            path: popper.min.js
+          name: nginx-cm
+        name: nginx-cm
+status:
+  availableReplicas: 1
+  conditions:
+   ...
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
+
+```
+
+
+```bash
+kubectl get service  nginx -o yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {}
+  creationTimestamp: "..."
+  name: nginx
+  namespace: default
+  resourceVersion: "15759"
+  selfLink: /api/v1/namespaces/default/services/nginx
+  uid: 67ad2770-154a-4dc4-aa32-a4c2d53af8d2
+spec:
+  clusterIP: 10.100.210.78
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 30111
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
+
 
 2. Using terrafrom to manage AWS EKS cluster
 ### 14. Install terrafrom binary at your local
