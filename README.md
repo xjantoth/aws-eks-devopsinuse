@@ -5,15 +5,18 @@
  - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)
  - [4. Create an extra user and group in AWS with admin privilages](#4-create-an-extra-user-and-group-in-aws-with-admin-privilages)
  - [5. Install awscli and kubectl binaries](#5-install-awscli-and-kubectl-binaries)
- - [6. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)
+ - [6. Retrive programatic access from AWS and configure aws cli](#6-retrive-programatic-access-from-aws-and-configure-aws-cli)
  - [7. Create EKS control plane IAM role in AWS web console](#7-create-eks-control-plane-iam-role-in-aws-web-console)
  - [8. Create EKS node group IAM role in AWS web console](#8-create-eks-node-group-iam-role-in-aws-web-console)
+
+
  - [9. Create EKS cluster in AWS web console](#9-create-eks-cluster-in-aws-web-console)
  - [10. Create EKS node group in AWS web console](#10-create-eks-node-group-in-aws-web-console)
  - [11. Create KUBECONFIG at your local](#11-create-kubeconfig-at-your-local)
  - [12. First NGINX deployment by kubectl to AWS EKS cluster created manually](#12-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)
 
-
+TODO: add leacture on ssh key pair <br/>
+TODO: clean up
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
@@ -238,8 +241,31 @@ Role ***DIU-EKSNodeGroupRole*** is finally created
 
 ![](img/eks-iam-node-group-7.png)
 
-<!-- - [9. Create EKS cluster in AWS web console](#9-create-eks-cluster-in-aws-web-console)-->
-### 9. Create EKS cluster in AWS web console
+
+<!-- - [9. Create SSH key pain in AWS console](#9-create-ssh-key-pain-in-aws-console)-->
+### 9. Create SSH key pain in AWS console
+
+![](img/ssh-keys-1.png)
+
+![](img/ssh-keys-2.png)
+
+![](img/ssh-keys-3.png)
+
+
+![](img/sg-3.png)
+
+SSH tunnel approach without the need to seup Security group in AWS
+
+```bash
+ssh -o "IdentitiesOnly yes" \
+-i  ~/.ssh/devopsinuse.pem \ 
+ec2-user@35.157.105.203 \
+-L30111:127.0.0.1:30111
+```
+![](img/ssh-keys-4.png)
+
+<!-- - [10. Create EKS cluster in AWS web console](#10-create-eks-cluster-in-aws-web-console)-->
+### 10. Create EKS cluster in AWS web console
 
 ![](img/eks-control-plane-1.png)
 
@@ -254,8 +280,8 @@ Role ***DIU-EKSNodeGroupRole*** is finally created
 ![](img/eks-control-plane-6.png)
 
 
-<!-- - [10. Create EKS node group in AWS web console](#10-create-eks-node-group-in-aws-web-console)-->
-### 10. Create EKS node group in AWS web console
+<!-- - [11. Create EKS node group in AWS web console](#11-create-eks-node-group-in-aws-web-console)-->
+### 11. Create EKS node group in AWS web console
 
 ![](img/node-group-1.png)
 
@@ -282,8 +308,8 @@ Role ***DIU-EKSNodeGroupRole*** is finally created
 ![](img/node-group-12.png)
 
 
-<!-- - [11. Create KUBECONFIG at your local](#11-create-kubeconfig-at-your-local)-->
-### 11. Create KUBECONFIG at your local
+<!-- - [12. Create KUBECONFIG at your local](#12-create-kubeconfig-at-your-local)-->
+### 12. Create KUBECONFIG at your local
 
 **Run this** command get the content of your `~/.kube/config` file at your local
 
@@ -314,8 +340,8 @@ kube-system   kube-proxy-ncm6q           1/1     Running   0          9m14s
 kube-system   kube-proxy-zffwq           1/1     Running   0          9m7s
 ```
 
-<!-- - [12. First NGINX deployment by kubectl to AWS EKS cluster created manually](#12-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)-->
-### 12. First NGINX deployment by kubectl to AWS EKS cluster created manually
+<!-- - [13. First NGINX deployment by kubectl to AWS EKS cluster created manually](#13-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)-->
+### 13. First NGINX deployment by kubectl to AWS EKS cluster created manually
 
 ```bash
 tree deployment-eks-nginx-manual 
@@ -495,6 +521,7 @@ total 516
 
 
 ```bash
+# get all deployments in default namespace
 kubectl get deployment nginx -o yaml         
 
 
@@ -644,8 +671,6 @@ spec:
 status:
   loadBalancer: {}
 ```
-
-
 
 2. Using terrafrom to manage AWS EKS cluster
 ### 14. Install terrafrom binary at your local
