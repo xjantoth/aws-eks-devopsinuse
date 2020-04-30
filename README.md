@@ -1,22 +1,22 @@
-
 **Starting AWS EKS cluster manually in AWS web console**
  - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)
  - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)
  - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)
  - [4. Create an extra user and group in AWS with admin privilages](#4-create-an-extra-user-and-group-in-aws-with-admin-privilages)
  - [5. Install awscli and kubectl binaries](#5-install-awscli-and-kubectl-binaries)
- - [6. Retrive programatic access from AWS and configure aws cli](#6-retrive-programatic-access-from-aws-and-configure-aws-cli)
+ - [6. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)
  - [7. Create EKS control plane IAM role in AWS web console](#7-create-eks-control-plane-iam-role-in-aws-web-console)
  - [8. Create EKS node group IAM role in AWS web console](#8-create-eks-node-group-iam-role-in-aws-web-console)
+ - [9. Create SSH key pain in AWS console](#9-create-ssh-key-pain-in-aws-console)
+ - [10. Create EKS cluster in AWS web console](#10-create-eks-cluster-in-aws-web-console)
+ - [11. Create EKS node group in AWS web console](#11-create-eks-node-group-in-aws-web-console)
+ - [12. Create KUBECONFIG at your local](#12-create-kubeconfig-at-your-local)
+ - [13. First NGINX deployment by kubectl to AWS EKS cluster created manually](#13-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)
+ - [14. Clean up Network Interfaces](#14-clean-up-network-interfaces)
+ - [15. Clean up AWS EKS node group](#15-clean-up-aws-eks-node-group)
+ - [16. Clean up AWS EKS control plane](#16-clean-up-aws-eks-control-plane)
+ - [17. Delete AWS IAM roles](#17-delete-aws-iam-roles)
 
-
- - [9. Create EKS cluster in AWS web console](#9-create-eks-cluster-in-aws-web-console)
- - [10. Create EKS node group in AWS web console](#10-create-eks-node-group-in-aws-web-console)
- - [11. Create KUBECONFIG at your local](#11-create-kubeconfig-at-your-local)
- - [12. First NGINX deployment by kubectl to AWS EKS cluster created manually](#12-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)
-
-TODO: add leacture on ssh key pair <br/>
-TODO: clean up
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
@@ -254,15 +254,6 @@ Role ***DIU-EKSNodeGroupRole*** is finally created
 
 ![](img/sg-3.png)
 
-SSH tunnel approach without the need to seup Security group in AWS
-
-```bash
-ssh -o "IdentitiesOnly yes" \
--i  ~/.ssh/devopsinuse.pem \ 
-ec2-user@35.157.105.203 \
--L30111:127.0.0.1:30111
-```
-![](img/ssh-keys-4.png)
 
 <!-- - [10. Create EKS cluster in AWS web console](#10-create-eks-cluster-in-aws-web-console)-->
 ### 10. Create EKS cluster in AWS web console
@@ -344,10 +335,9 @@ kube-system   kube-proxy-zffwq           1/1     Running   0          9m7s
 ### 13. First NGINX deployment by kubectl to AWS EKS cluster created manually
 
 ```bash
-tree deployment-eks-nginx-manual 
-
+tree deployment-eks-nginx-manual
 deployment-eks-nginx-manual
-├── deployment-eks-nginx-manual.html
+├── deployment-eks-nginx-manual.yaml
 ├── index-eks-nginx-manual_files
 │   ├── bootstrap.min.css
 │   ├── bootstrap.min.js
@@ -357,12 +347,13 @@ deployment-eks-nginx-manual
 │   ├── jquery-3.2.1.slim.min.js
 │   └── popper.min.js
 └── index-eks-nginx-manual.html
+
 ```
 
+
+Create configmap kubernetes object **nginx-cm**
 ```bash
-
 cd deployment-eks-nginx-manual/
-
 
 kubectl create configmap nginx-cm \
 --from-file=index-eks-nginx-manual.html \
@@ -492,6 +483,19 @@ ip-172-31-3-232.eu-central-1.compute.internal   3.121.160.180
 
 ![](img/eks-manual-nginx-nodes-1.png)
 ![](img/eks-manual-nginx-nodes-2.png)
+
+
+
+SSH tunnel approach without the need to seup Security group in AWS
+
+```bash
+ssh -o "IdentitiesOnly yes" \
+-i  ~/.ssh/devopsinuse.pem \
+ec2-user@35.157.105.203 \
+-L30111:127.0.0.1:30111
+```
+![](img/ssh-keys-4.png)
+
 
 
 Explore Nginx pod by attaching to **a running container**
@@ -672,30 +676,66 @@ status:
   loadBalancer: {}
 ```
 
+<!-- - [14. Clean up Network Interfaces](#14-clean-up-network-interfaces)-->
+### 14. Clean up Network Interfaces
+
+![](img/delete-eks-1.png)
+
+![](img/delete-eks-2.png)
+
+<!-- - [15. Clean up AWS EKS node group](#15-clean-up-aws-eks-node-group)-->
+### 15. Clean up AWS EKS node group
+
+![](img/delete-eks-3.png)
+
+![](img/delete-eks-4.png)
+
+![](img/delete-eks-5.png)
+
+![](img/delete-eks-6.png)
+
+
+<!-- - [16. Clean up AWS EKS control plane](#16-clean-up-aws-eks-control-plane)-->
+### 16. Clean up AWS EKS control plane
+
+![](img/delete-eks-7.png)
+
+![](img/delete-eks-8.png)
+
+![](img/delete-eks-9.png)
+
+![](img/delete-eks-10.png)
+
+<!-- - [17. Delete AWS IAM roles](#17-delete-aws-iam-roles)-->
+### 17. Delete AWS IAM roles
+
+![](img/delete-eks-11.png)
+
+
 2. Using terrafrom to manage AWS EKS cluster
-### 14. Install terrafrom binary at your local
-### 15. Run terrafrom init and validate to initialize required plugins
-### 16. Fill up terraform.eks.tfvars file with your AWS security credentials
-### 17. Run terrafrom plan and terrafrom apply
-### 18. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles 
-### 19. Run terraform apply uncomment sg.tf to create mandatory Security Group 
-### 20. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
-### 21. Run terraform apply uncomment aws_eks_cluster in main.tf to create AWS EKS cluster control plane
-### 22. Run terraform apply uncomment aws_eks_node_group in main.tf to create AWS EKS node group
-### 23. Explore terrafrom console commands with custom tags variable
-### 24. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
-### 25. How to destroy AWS EKS by terrafrom destroy
+### 17. Install terrafrom binary at your local
+### 18. Run terrafrom init and validate to initialize required plugins
+### 19. Fill up terraform.eks.tfvars file with your AWS security credentials
+### 20. Run terrafrom plan and terrafrom apply
+### 21. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles 
+### 22. Run terraform apply uncomment sg.tf to create mandatory Security Group 
+### 23. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
+### 24. Run terraform apply uncomment aws_eks_cluster in main.tf to create AWS EKS cluster control plane
+### 25. Run terraform apply uncomment aws_eks_node_group in main.tf to create AWS EKS node group
+### 26. Explore terrafrom console commands with custom tags variable
+### 27. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
+### 28. How to destroy AWS EKS by terrafrom destroy
 
 3. Helm charts
-### 26. Install helm v3 and helmfile binaries
-### 27. Create your own NGINX helm chart
-### 28. Deploy NGINX helm chart via helm v3
-### 29. Deploy PostgreSQL helm chart from stable helm chart repository
-### 30. Self written micro backend helm chart
-### 31. Self written micro frontend helm chart
-### 32. Nginx ingress controller helm chart
-### 33. Creating own helm chart repository from Github account
-### 33. Creating own helm chart repository from Chartmuseum
+### 29. Install helm v3 and helmfile binaries
+### 30. Create your own NGINX helm chart
+### 31. Deploy NGINX helm chart via helm v3
+### 32. Deploy PostgreSQL helm chart from stable helm chart repository
+### 33. Self written micro backend helm chart
+### 34. Self written micro frontend helm chart
+### 35. Nginx ingress controller helm chart
+### 36. Creating own helm chart repository from Github account
+### 36. Creating own helm chart repository from Chartmuseum
 
 
 
