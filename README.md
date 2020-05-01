@@ -976,10 +976,182 @@ aws_subnet_ids = {
 vpc_id = vpc-111117e
 ```
 
-### 22. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles
+### 22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles
+
+Remove comments from `iam.tf` file:
+
+IAM AWS role for **EKS control plane**
+
+```bash
+# IAM AWS role for EKS control plane
+resource "aws_iam_role" "diu-eks-cluster" {
+  name = "diu-EksClusterIAMRole-tf"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "eks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "diu-eks-cluster-AmazonEKSClusterPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.diu-eks-cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "diu-eks-cluster-AmazonEKSServicePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+  role       = aws_iam_role.diu-eks-cluster.name
+}
+```
+
+IAM AWS role for AWS **EKS Node Group**
+
+```bash
+# IAM AWS role for Node Group
+resource "aws_iam_role" "diu-eks-cluster-node-group" {
+  name = "diu-EksClusterNodeGroup-tf"
+
+  assume_role_policy = jsonencode({
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+    Version = "2012-10-17"
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "diu-eks-cluster-node-group-AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.diu-eks-cluster-node-group.name
+}
+
+resource "aws_iam_role_policy_attachment" "diu-eks-cluster-node-group-AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.diu-eks-cluster-node-group.name
+}
+
+resource "aws_iam_role_policy_attachment" "diu-eks-cluster-node-group-AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.diu-eks-cluster-node-group.name
+}
+```
+
+Please run `terraform apply -var-file terraform.eks.tfvars`
+
+```bash
+terraform apply -var-file terraform.eks.tfvars
 
 
+data.aws_availability_zones.default: Refreshing state...
+data.aws_vpc.default: Refreshing state...
+data.aws_subnet_ids.default: Refreshing state...
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_iam_role.diu-eks-cluster will be created
+  + resource "aws_iam_role" "diu-eks-cluster" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+
+  ...
+  ... 
+  ...
+
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+```
+![](img/iam-tf-1.png)
+
+
+<!-- - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group ](#23-run-terraform-apply-uncomment-sg-tf-to-create-mandatory-security-group-)-->
 ### 23. Run terraform apply uncomment sg.tf to create mandatory Security Group 
+
+Please uncomment all lines from `sg.tf` file and run `terraform apply -var-file terraform.eks.tfvars` command:
+
+```bash
+
+
+terraform apply -var-file terraform.eks.tfvars
+aws_iam_role.diu-eks-cluster-node-group: Refreshing state... [id=diu-EksClusterNodeGroup-tf]
+  + create
+  ...
+  ... 
+  ... 
+
+Terraform will perform the following actions:
+
+  # aws_security_group.eks_cluster_node_group will be created
+  + resource "aws_security_group" "eks_cluster_node_group" {
+      + arn                    = (known after apply)
+      + description            = "Allow TLS inbound traffic"
+      + egress                 = [
+              + self             = false
+              + to_port          = 0
+              ...
+              ...
+              ... 
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = "Allow incoming SSH traffic"
+              ...
+              ... 
+              ...
+              + to_port          = 22
+            },
+        ]
+      + name                   = "EKSClusterNodeGroupSecurityGroup"
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Delete"    = "true"
+          + "Name"      = "diu-eks-cluster-tag"
+          + "Terraform" = "true"
+        }
+      + vpc_id                 = "vpc-149f497e"
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+```
+
+![](img/sg-tf-1.png)
+
+
 ### 24. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
 ### 25. Run terraform apply uncomment aws_eks_cluster in main.tf to create AWS EKS cluster control plane
 ### 26. Run terraform apply uncomment aws_eks_node_group in main.tf to create AWS EKS node group
