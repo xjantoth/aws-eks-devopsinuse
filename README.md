@@ -23,7 +23,11 @@
  - [19. Run terrafrom init and validate to initialize required plugins](#19-run-terrafrom-init-and-validate-to-initialize-required-plugins)
  - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)
  - [21. Run terrafrom plan and terrafrom apply](#21-run-terrafrom-plan-and-terrafrom-apply)
-
+ - [22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#22-uncomment-iam-tf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)
+ - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sg-tf-to-create-mandatory-security-group)
+ - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnets-tf-and-run-terraform-apply-to-create-subnets-in-aws)
+ - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-main-tf-to-create-aws-eks-cluster-control-plane)
+ - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node_group-resource-section-in-main-tf-to-create-aws-eks-node-group)
 # 1. Starting AWS EKS cluster manually in AWS web console
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
@@ -976,6 +980,7 @@ aws_subnet_ids = {
 vpc_id = vpc-111117e
 ```
 
+<!-- - [22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#22-uncomment-iam-tf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)-->
 ### 22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles
 
 Remove comments from `iam.tf` file:
@@ -1086,7 +1091,7 @@ Terraform will perform the following actions:
 ![](img/iam-tf-1.png)
 
 
-<!-- - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group ](#23-run-terraform-apply-uncomment-sg-tf-to-create-mandatory-security-group-)-->
+<!-- - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sg-tf-to-create-mandatory-security-group)-->
 ### 23. Run terraform apply uncomment sg.tf to create mandatory Security Group 
 
 Please uncomment all lines from `sg.tf` file and run `terraform apply -var-file terraform.eks.tfvars` command:
@@ -1151,12 +1156,386 @@ Do you want to perform these actions?
 
 ![](img/sg-tf-1.png)
 
+```bash
+aws ec2 describe-security-groups --group-names EKSClusterNodeGroupSecurityGroup --profile devopsinuse
+{
+    "SecurityGroups": [
+        {
+            "Description": "Allow TLS inbound traffic",
+            "GroupName": "EKSClusterNodeGroupSecurityGroup",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0",
+                            "Description": "Allow incoming SSH traffic"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "...",
+            "GroupId": "sg-0bb7b99d2f18d67b2",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0",
+                            "Description": "Allow all outbound traffic"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "Tags": [
+                {
+                    "Key": "Name",
+                    "Value": "diu-eks-cluster-tag"
+                },
+                {
+                    "Key": "Delete",
+                    "Value": "true"
+                },
+                {
+                    "Key": "Terraform",
+                    "Value": "true"
+                }
+            ],
+        }
+    ]
+}
 
-### 24. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
-### 25. Run terraform apply uncomment aws_eks_cluster in main.tf to create AWS EKS cluster control plane
-### 26. Run terraform apply uncomment aws_eks_node_group in main.tf to create AWS EKS node group
+```
+
+<!-- - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnets-tf-and-run-terraform-apply-to-create-subnets-in-aws)-->
+### 24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS 
+Uncomment `subnets.tf` file:
+
+```bash
+cat  subnets.tf
+resource "aws_subnet" "this" {
+  count = 3
+
+  availability_zone       = data.aws_availability_zones.default.names[count.index]
+  cidr_block              = cidrsubnet(data.aws_vpc.default.cidr_block, 8, 100 + count.index)
+  vpc_id                  = data.aws_vpc.default.id
+  map_public_ip_on_launch = true
+
+  tags = merge({
+    "kubernetes.io/cluster/${var.eks-cluster-name}" = "shared"
+    },
+    var.custom_tags
+  )
+}
+```
+
+Run `terraform apply -var-file terraform.eks.tfvars` to create **subnets** within a default VPC in AWS Free tier account
+
+```bash
+terraform apply -var-file terraform.eks.tfvars
+
+aws_iam_role.diu-eks-cluster-node-group: Refreshing state... [id=diu-EksClusterNodeGroup-tf]
+...
+...
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_subnet.this[0] will be created
+  + resource "aws_subnet" "this" {
+      + arn                             = (known after apply)
+      + assign_ipv6_address_on_creation = false
+      + availability_zone               = "eu-central-1a"
+      + availability_zone_id            = (known after apply)
+      + cidr_block                      = "172.31.100.0/24"
+      + id                              = (known after apply)
+      + ipv6_cidr_block                 = (known after apply)
+      + ipv6_cidr_block_association_id  = (known after apply)
+      + map_public_ip_on_launch         = true
+      + owner_id                        = (known after apply)
+      + tags                            = {
+          + "Delete"                                = "true"
+          + "Name"                                  = "diu-eks-cluster-tag"
+          + "Terraform"                             = "true"
+          + "kubernetes.io/cluster/diu-eks-cluster" = "shared"
+        }
+      + vpc_id                          = "vpc-149f497e"
+    }
+
+  # aws_subnet.this[1] will be created
+  + resource "aws_subnet" "this" {
+      + arn                             = (known after apply)
+      + assign_ipv6_address_on_creation = false
+      + availability_zone               = "eu-central-1b"
+      + availability_zone_id            = (known after apply)
+      + cidr_block                      = "172.31.101.0/24"
+      + id                              = (known after apply)
+      + ipv6_cidr_block                 = (known after apply)
+      + ipv6_cidr_block_association_id  = (known after apply)
+      + map_public_ip_on_launch         = true
+      + owner_id                        = (known after apply)
+      + tags                            = {
+          + "Delete"                                = "true"
+          + "Name"                                  = "diu-eks-cluster-tag"
+          + "Terraform"                             = "true"
+          + "kubernetes.io/cluster/diu-eks-cluster" = "shared"
+        }
+      + vpc_id                          = "vpc-149f497e"
+    }
+
+  # aws_subnet.this[2] will be created
+  + resource "aws_subnet" "this" {
+      + arn                             = (known after apply)
+      + assign_ipv6_address_on_creation = false
+      + availability_zone               = "eu-central-1c"
+      + availability_zone_id            = (known after apply)
+      + cidr_block                      = "172.31.102.0/24"
+      + id                              = (known after apply)
+      + ipv6_cidr_block                 = (known after apply)
+      + ipv6_cidr_block_association_id  = (known after apply)
+      + map_public_ip_on_launch         = true
+      + owner_id                        = (known after apply)
+      + tags                            = {
+          + "Delete"                                = "true"
+          + "Name"                                  = "diu-eks-cluster-tag"
+          + "Terraform"                             = "true"
+          + "kubernetes.io/cluster/diu-eks-cluster" = "shared"
+        }
+      + vpc_id                          = "vpc-149f497e"
+    }
+
+Plan: 3 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+```
+
+![](img/subnets-tf-1.png)
+
+
+<!-- - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-main-tf-to-create-aws-eks-cluster-control-plane)-->
+### 25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane
+
+This time it will be important to navigate to `main.tf` file and uncomment the section for the **resource: aws_eks_cluster** to provision AWS EKS cluster (Kubernetes control plane)
+
+```bash
+vim main.tf
+
+...
+# Uncomment to create AWS EKS cluster (Kubernetes control plane) - start
+resource "aws_eks_cluster" "this" {
+  name     = var.eks-cluster-name
+  role_arn = aws_iam_role.diu-eks-cluster.arn
+
+  vpc_config {
+    # subnet_ids = ["${aws_subnet.example1.id}", "${aws_subnet.example2.id}"]
+    # security_group_ids = list(aws_security_group.eks_cluster.id)
+    subnet_ids = [for subnet in [for value in aws_subnet.this : value] : subnet.id]
+  }
+
+  # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
+  # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
+  depends_on = [
+    aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSClusterPolicy,
+    aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSServicePolicy,
+  ]
+}
+# Uncomment to create AWS EKS cluster (Kubernetes control plane) - start
+
+...
+:wq!
+
+```
+
+Please **run** `terraform apply -var-file terraform.eks.tfvars` to create **aws_eks_cluster** terraform resource and provision AWS EKS cluster (Kubernetes control plane) in AWS.
+
+```bash
+ terraform apply -var-file terraform.eks.tfvars
+
+data.aws_vpc.default: Refreshing state...
+...
+...
+aws_security_group.eks_cluster_node_group: Refreshing state... [id=sg-0bb7b99d2f18d67b2]
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_eks_cluster.this will be created
+  + resource "aws_eks_cluster" "this" {
+      + arn                   = (known after apply)
+      + certificate_authority = (known after apply)
+      + created_at            = (known after apply)
+      + endpoint              = (known after apply)
+      + id                    = (known after apply)
+      + identity              = (known after apply)
+      + name                  = "diu-eks-cluster"
+      + platform_version      = (known after apply)
+      + role_arn              = "arn:aws:iam::61111116:role/diu-EksClusterIAMRole-tf"
+      + status                = (known after apply)
+      + version               = (known after apply)
+
+      + vpc_config {
+          + cluster_security_group_id = (known after apply)
+          + endpoint_private_access   = false
+          + endpoint_public_access    = true
+          + public_access_cidrs       = (known after apply)
+          + subnet_ids                = [
+              + "subnet-029206922e7523d47",
+              + "subnet-075c3500bf9838fc8",
+              + "subnet-08808f0e072d6874e",
+            ]
+          + vpc_id                    = (known after apply)
+        }
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+```
+![](img/main-eks-cp-tf-1.png)
+
+![](img/main-eks-cp-tf-2.png)
+
+
+<!-- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node_group-resource-section-in-main-tf-to-create-aws-eks-node-group)-->
+### 26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group
+
+```bash
+
+terraform apply -var-file terraform.eks.tfvars
+data.aws_vpc.default: Refreshing state...
+
+...
+...
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_eks_node_group.this will be created
+  + resource "aws_eks_node_group" "this" {
+      + ami_type        = (known after apply)
+      + arn             = (known after apply)
+      + cluster_name    = "diu-eks-cluster"
+      + disk_size       = (known after apply)
+      + id              = (known after apply)
+      + instance_types  = [
+          + "t3.micro",
+        ]
+      + node_group_name = "diu-eks-cluster-node-group"
+      + node_role_arn   = "arn:aws:iam::61111111116:role/diu-EksClusterNodeGroup-tf"
+      + release_version = (known after apply)
+      + resources       = (known after apply)
+      + status          = (known after apply)
+      + subnet_ids      = [
+          + "subnet-029206922e7523d47",
+          + "subnet-075c3500bf9838fc8",
+          + "subnet-08808f0e072d6874e",
+        ]
+      + tags            = {
+          + "Delete"    = "true"
+          + "Name"      = "diu-eks-cluster-tag"
+          + "Terraform" = "true"
+        }
+      + version         = (known after apply)
+
+      + remote_access {
+          + ec2_ssh_key               = "aws-eks-ssh-key"
+          + source_security_group_ids = [
+              + "sg-0bb7b99d2f18d67b2",
+            ]
+        }
+
+      + scaling_config {
+          + desired_size = 2
+          + max_size     = 3
+          + min_size     = 1
+        }
+    }
+
+  # aws_key_pair.this will be created
+  + resource "aws_key_pair" "this" {
+      + fingerprint = (known after apply)
+      + id          = (known after apply)
+      + key_name    = "aws-eks-ssh-key"
+      + key_pair_id = (known after apply)
+      + public_key  = "ssh-rsa AAA.....xyz
+    }
+
+Plan: 2 to add, 0 to change, 0 to destroy.
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+```
+
+![](img/main-eks-ng-tf-1.png)
+
+![](img/main-eks-ng-tf-2.png)
+
+**Setup** communication between **your PC** and **AWS EKS** cluster 
+
+```bash
+echo "" > ~/.kube/config && cat ~/.kube/config
+
+aws eks --region eu-central-1 \
+update-kubeconfig \
+--name diu-eks-cluster \
+--profile devopsinuse
+
+Added new context arn:aws:eks:eu-central-1:611111116:cluster/diu-eks-cluster to /home/<username>/.kube/config
+```
+
+**If you now go and take a look** what is inside the **file**: `~/.kube/config`, you will find a correct **connection settings** to be able to communicate with your **AWS EKS Kubernetes cluster** under your AWS Free Tier account
+
+Run following commands to make sure that you can communicte with your AWS EKS Kubernetes cluster under your AWS Free Tier account
+
+```bash
+kubectl get nodes
+NAME                                              STATUS   ROLES    AGE   VERSION
+ip-172-31-101-85.eu-central-1.compute.internal    Ready    <none>   11m   v1.15.10-eks-bac369
+ip-172-31-102-164.eu-central-1.compute.internal   Ready    <none>   11m   v1.15.10-eks-bac369
+
+kubectl get pods -A
+NAMESPACE     NAME                       READY   STATUS    RESTARTS   AGE
+kube-system   aws-node-tpnfj             1/1     Running   0          11m
+kube-system   aws-node-w5bh5             1/1     Running   0          11m
+kube-system   coredns-5b6dbb4b59-8h9wd   1/1     Running   0          41m
+kube-system   coredns-5b6dbb4b59-r5bz6   1/1     Running   0          41m
+kube-system   kube-proxy-lnjwr           1/1     Running   0          11m
+kube-system   kube-proxy-z945r           1/1     Running   0          11m
+```
+
+
 ### 27. Explore terrafrom console commands with custom tags variable
 ### 28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
+
+
 ### 29. How to destroy AWS EKS by terrafrom destroy
 
 3. Helm charts
