@@ -1,4 +1,6 @@
 **Starting AWS EKS cluster manually in AWS web console**
+
+
  - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)
  - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)
  - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)
@@ -16,6 +18,10 @@
  - [15. Clean up AWS EKS node group](#15-clean-up-aws-eks-node-group)
  - [16. Clean up AWS EKS control plane](#16-clean-up-aws-eks-control-plane)
  - [17. Delete AWS IAM roles](#17-delete-aws-iam-roles)
+ - [18. Install terrafrom binary at your local](#18-install-terrafrom-binary-at-your-local)
+ - [19. Run terrafrom init and validate to initialize required plugins](#19-run-terrafrom-init-and-validate-to-initialize-required-plugins)
+ - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)
+ - [21. Run terrafrom plan and terrafrom apply](#21-run-terrafrom-plan-and-terrafrom-apply)
 
 
 # 1. Starting AWS EKS cluster manually in AWS web console
@@ -716,6 +722,7 @@ status:
 
 # 2. Using terrafrom to manage AWS EKS cluster
 
+<!-- - [18. Install terrafrom binary at your local](#18-install-terrafrom-binary-at-your-local)-->
 ### 18. Install terrafrom binary at your local
 
 Link: https://www.terraform.io/downloads.html
@@ -734,6 +741,7 @@ terraform -version
 Terraform v0.12.24
 ```
 
+<!-- - [19. Run terrafrom init and validate to initialize required plugins](#19-run-terrafrom-init-and-validate-to-initialize-required-plugins)-->
 ### 19. Run terrafrom init and validate to initialize required plugins
 
 Navigate to `eks-terraform` folder and list it to see the **terrafrom files**
@@ -787,6 +795,7 @@ rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
 
+<!-- - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)-->
 ### 20. Fill up terraform.eks.tfvars file with your AWS security credentials
 
 * to start using **terrafrom** it only takes few commands to learn in the begining
@@ -813,12 +822,17 @@ commands will detect it and remind you to do so if necessary.
   - **(2)** configure **two files** (since we configured **aws cli** `--profile`):
 
     `~/.aws/credentials`<br/>
-    `~/.aws/config` 
-
+    `~/.aws/config`<br/> 
+    `export AWS_PROFILE="devopsinuse"`
   - **(3)** use `-var-file` **flag** when running `terrafrom <command> -var-file terraform.eks.tfvars`<br/>
     `terraform destroy  -var-file terraform.eks.tfvars`
 
 **Please** fill up file: `terraform.eks.tfvars`
+
+![](img/aws-cli-3.png)
+
+![](img/aws-cli-4.png)
+
 
 ```bash
  …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1 … 1  cat terraform.eks.tfvars
@@ -845,11 +859,110 @@ then
    echo -e "\nCreating SSH keys ..."
    ssh-keygen -t rsa -C "eks-aws" -N '' -f $SSH_KEYS
 else
-   echo -e "\nSSH keys are already in place!"
+   echo -e "\nSSH keys are already in place\!"
 fi
 ```
 
+<!-- - [21. Run terrafrom plan and terrafrom apply](#21-run-terrafrom-plan-and-terrafrom-apply)-->
 ### 21. Run terrafrom plan and terrafrom apply
+
+**Run** `terraform validate` and `terraform fmt -recursive` first to validate the code and do a proper formatting of the terrafrom code
+
+```bash
+ …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1  terraform validate
+Success! The configuration is valid.
+
+ …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1  terraform fmt -recursive
+```
+
+* it's mostly refered that **terraform** has 3 main files with a correspondng naming convention:
+  - `main.tf`
+  - `variables.tf`
+  - `outputs.tf`
+  - `----------------`
+  - `terraform.eks.tfvars` (extra var file)
+
+![](img/terraform-2.png)
+
+`terraform plan` will throw an **error**:
+```bash
+terrafrom plan
+
+var.aws_access_key
+  AWS region
+  Enter a value: 
+```
+
+
+run: `terraform plan -var-file terraform.eks.tfvars` with **an extra flag**: `-var-file`
+
+```bash
+terraform plan -var-file terraform.eks.tfvars
+Refreshing Terraform state in-memory prior to plan...
+The refreshed state will be used to calculate this plan, but will not be
+persisted to local or remote state storage.
+
+data.aws_vpc.default: Refreshing state...
+data.aws_availability_zones.default: Refreshing state...
+data.aws_subnet_ids.default: Refreshing state...
+
+------------------------------------------------------------------------
+
+No changes. Infrastructure is up-to-date.
+
+This means that Terraform did not detect any differences between your
+configuration and real physical resources that exist. As a result, no
+actions need to be performed.
+```
+
+The **reason** why terrafrom is not going to do anything special in paricular is that **most of the files are commented**. There are just few lines without comments in `main.tf`file. 
+
+However, the files `variables.tf` and `outputs.tf` keep **few active (uncommented) lines** and once `terraform apply -var-file terraform.eks.tfvars` is executed, there will be some output.
+
+
+**Run** `terraform apply -var-file terraform.eks.tfvars` command:
+
+```bash
+terraform apply -var-file terraform.eks.tfvars
+
+data.aws_availability_zones.default: Refreshing state...
+data.aws_vpc.default: Refreshing state...
+data.aws_subnet_ids.default: Refreshing state...
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+aws_availability_zones = {
+  "group_names" = [
+    "eu-central-1",
+  ]
+  "id" = "..."
+  "names" = [
+    "eu-central-1a",
+    "eu-central-1b",
+    "eu-central-1c",
+  ]
+  "state" = "available"
+  "zone_ids" = [
+    "euc1-az2",
+    "euc1-az3",
+    "euc1-az1",
+  ]
+}
+aws_subnet_ids = {
+  "id" = "vpc-111117e"
+  "ids" = [
+    "subnet-1f3cc963",
+    "subnet-9b75cbf1",
+    "subnet-ca01f986",
+  ]
+  "vpc_id" = "vpc-111117e"
+}
+vpc_id = vpc-111117e
+```
+
+
 ### 22. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles 
 ### 23. Run terraform apply uncomment sg.tf to create mandatory Security Group 
 ### 24. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
