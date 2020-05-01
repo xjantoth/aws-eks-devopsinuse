@@ -1534,6 +1534,119 @@ kube-system   kube-proxy-z945r           1/1     Running   0          11m
 ### 27. Explore terrafrom console commands with custom tags variable
 ### 28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
 
+```bash
+deployment-eks-nginx-terraform
+├── deployment-eks-nginx-terraform.yaml
+├── index-eks-nginx-terraform_files
+│   ├── bootstrap.min.css
+│   ├── bootstrap.min.js
+│   ├── Chart.min.js
+│   ├── dashboard.css
+│   ├── feather.min.js
+│   ├── jquery-3.2.1.slim.min.js
+│   └── popper.min.js
+└── index-eks-nginx-terraform.html
+
+1 directory, 9 files
+```
+
+Create configmap kubernetes object nginx-cm
+```bash
+cd deployment-eks-nginx-terraform/
+
+kubectl create configmap nginx-cm \
+--from-file=index-eks-nginx-terraform.html \
+--from-file=index-eks-nginx-terraform_files/bootstrap.min.css \
+--from-file=index-eks-nginx-terraform_files/bootstrap.min.js \ 
+--from-file=index-eks-nginx-terraform_files/Chart.min.js \
+--from-file=index-eks-nginx-terraform_files/dashboard.css \
+--from-file=index-eks-nginx-terraform_files/feather.min.js \
+--from-file=index-eks-nginx-terraform_files/jquery-3.2.1.slim.min.js \
+--from-file=index-eks-nginx-terraform_files/popper.min.js
+```
+
+
+![](img/sg-4.png)
+
+**Execute** deployment of your Nginx web server with custom content
+
+```
+kubectl apply -f deployment-eks-nginx-terraform.yaml
+```
+
+
+**Check whether desired** kubernetes objects have been created
+
+```bash
+kubectl get deployment,svc
+NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/nginx   0/1     1            0           9s
+
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+service/kubernetes   ClusterIP   10.100.0.1       <none>        443/TCP        101m
+service/nginx        NodePort    10.100.176.217   <none>        80:30111/TCP   9s
+
+
+
+# Check for pods
+kubectl get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+nginx-656bf99f5d-4pjgt   1/1     Running   0          8s
+
+```
+
+
+**Retrive** IP Addresses of your **physical nodes** in AWS
+
+```bash
+NAME	EXTERNAL-IP
+ip-172-31-101-85.eu-central-1.compute.internal	18.156.166.86
+ip-172-31-102-164.eu-central-1.compute.internal	35.158.24.165
+```
+
+![](img/nginx-tf-2.png)
+
+![](img/nginx-tf-3.png)
+
+**SSH tunnel** approach without the need to seup Security group in AWS
+
+```bash
+ssh -o "IdentitiesOnly yes" \
+-i  ~/.ssh/eks-aws.pem \
+ec2-user@35.158.24.165 \
+-L30111:127.0.0.1:30111
+
+ssh -o "IdentitiesOnly yes" \
+-i  ~/.ssh/eks-aws.pem \
+ec2-user@18.156.166.86 \
+-L30111:127.0.0.1:30111
+
+```
+
+![](img/nginx-tf-1.png)
+
+**Explore** Nginx deployment in AWS EKS provisioned by terrafrom
+
+```bash
+ kubectl get pods  
+NAME                     READY   STATUS    RESTARTS   AGE
+nginx-656bf99f5d-4pjgt   1/1     Running   0          26m
+kubectl exec -it  nginx-656bf99f5d-4pjgt -- bash                               
+root@nginx-656bf99f5d-4pjgt:/# ls usr/share/nginx/html/index* -l
+-rw-r--r-- 1 root root 16062 usr/share/nginx/html/index.html
+
+usr/share/nginx/html/index-eks-nginx-terraform_files:
+total 516
+-rw-r--r-- 1 root root 157843 Chart.min.js
+-rw-r--r-- 1 root root 144877 bootstrap.min.css
+-rw-r--r-- 1 root root  48944 bootstrap.min.js
+-rw-r--r-- 1 root root   1539 dashboard.css
+-rw-r--r-- 1 root root  75779 feather.min.js
+-rw-r--r-- 1 root root  69597 jquery-3.2.1.slim.min.js
+-rw-r--r-- 1 root root  19188 popper.min.js
+root@nginx-656bf99f5d-4pjgt:/# 
+
+```
 
 ### 29. How to destroy AWS EKS by terrafrom destroy
 
