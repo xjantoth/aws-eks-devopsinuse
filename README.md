@@ -1093,6 +1093,12 @@ Terraform will perform the following actions:
 <!-- - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sgtf-to-create-mandatory-security-group)-->
 ### 23. Run terraform apply uncomment sg.tf to create mandatory Security Group 
 
+https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html
+
+```bash
+kubernetes.io/cluster/<cluster-name> owned
+```
+
 Please uncomment all lines from `sg.tf` file and run `terraform apply -var-file terraform.eks.tfvars` command:
 
 ```bash
@@ -1651,6 +1657,33 @@ root@nginx-656bf99f5d-4pjgt:/#
 ```
 
 ### 29. How to destroy AWS EKS by terrafrom destroy
+
+
+**Run** `terraform destroy  -var-file terraform.eks.tfvars` command to **delete all prevoiusly** created AWS resources
+```bash
+terraform destroy  -var-file terraform.eks.tfvars
+
+...
+...
+aws_eks_node_group.this: Destruction complete after 7m16s
+aws_key_pair.this: Destruction complete after 1s
+aws_security_group.eks_cluster_node_group: Destruction complete after 1s
+aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEC2ContainerRegistryReadOnly: Destruction complete after 1s
+aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKS_CNI_Policy: Destruction complete after 1s
+aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKSWorkerNodePolicy: Destruction complete after 1s
+aws_iam_role.diu-eks-cluster-node-group: Destruction complete after 2s
+aws_eks_cluster.this: Destruction complete after 9m20s
+aws_subnet.this[0]: Destruction complete after 1s
+aws_subnet.this[1]: Destruction complete after 1s
+aws_subnet.this[2]: Destruction complete after 1s
+aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSClusterPolicy: Destruction complete after 1s
+aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSServicePolicy: Destruction complete after 1s
+aws_iam_role.diu-eks-cluster: Destruction complete after 1s
+
+...
+...
+Destroy complete! Resources: 14 destroyed.
+```
 
 3. Helm charts
 ### 29. Install helm v3 and helmfile binaries
