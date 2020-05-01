@@ -1,6 +1,4 @@
 **1. Starting AWS EKS cluster manually in AWS web console**
-
-
  - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)
  - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)
  - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)
@@ -24,12 +22,12 @@
  - [19. Run terrafrom init and validate to initialize required plugins](#19-run-terrafrom-init-and-validate-to-initialize-required-plugins)
  - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)
  - [21. Run terrafrom plan and terrafrom apply](#21-run-terrafrom-plan-and-terrafrom-apply)
- - [22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#22-uncomment-iam-tf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)
- - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sg-tf-to-create-mandatory-security-group)
- - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnets-tf-and-run-terraform-apply-to-create-subnets-in-aws)
- - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-main-tf-to-create-aws-eks-cluster-control-plane)
- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node-group-resource-section-in-main-tf-to-create-aws-eks-node-group)
-# 1. Starting AWS EKS cluster manually in AWS web console
+ - [22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#22-uncomment-iamtf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)
+ - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sgtf-to-create-mandatory-security-group)
+ - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnetstf-and-run-terraform-apply-to-create-subnets-in-aws)
+ - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-awsekscluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)
+ - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-awseksnodegroup-resource-section-in-maintf-to-create-aws-eks-node-group)
+
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
@@ -981,7 +979,7 @@ aws_subnet_ids = {
 vpc_id = vpc-111117e
 ```
 
-<!-- - [22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#22-uncomment-iam-tf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)-->
+<!-- - [22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#22-uncomment-iamtf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)-->
 ### 22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles
 
 Remove comments from `iam.tf` file:
@@ -1092,7 +1090,7 @@ Terraform will perform the following actions:
 ![](img/iam-tf-1.png)
 
 
-<!-- - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sg-tf-to-create-mandatory-security-group)-->
+<!-- - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sgtf-to-create-mandatory-security-group)-->
 ### 23. Run terraform apply uncomment sg.tf to create mandatory Security Group 
 
 Please uncomment all lines from `sg.tf` file and run `terraform apply -var-file terraform.eks.tfvars` command:
@@ -1216,7 +1214,7 @@ aws ec2 describe-security-groups --group-names EKSClusterNodeGroupSecurityGroup 
 
 ```
 
-<!-- - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnets-tf-and-run-terraform-apply-to-create-subnets-in-aws)-->
+<!-- - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnetstf-and-run-terraform-apply-to-create-subnets-in-aws)-->
 ### 24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS 
 Uncomment `subnets.tf` file:
 
@@ -1328,7 +1326,7 @@ Do you want to perform these actions?
 ![](img/subnets-tf-1.png)
 
 
-<!-- - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-main-tf-to-create-aws-eks-cluster-control-plane)-->
+<!-- - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-awsekscluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)-->
 ### 25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane
 
 This time it will be important to navigate to `main.tf` file and uncomment the section for the **resource: aws_eks_cluster** to provision AWS EKS cluster (Kubernetes control plane)
