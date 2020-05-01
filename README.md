@@ -20,13 +20,13 @@
 **2. Using terrafrom to manage AWS EKS cluster**
  - [18. Install terrafrom binary at your local](#18-install-terrafrom-binary-at-your-local)
  - [19. Run terrafrom init and validate to initialize required plugins](#19-run-terrafrom-init-and-validate-to-initialize-required-plugins)
- - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)
+ - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraformekstfvars-file-with-your-aws-security-credentials)
  - [21. Run terrafrom plan and terrafrom apply](#21-run-terrafrom-plan-and-terrafrom-apply)
  - [22. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#22-uncomment-iamtf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)
  - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sgtf-to-create-mandatory-security-group)
  - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnetstf-and-run-terraform-apply-to-create-subnets-in-aws)
- - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-awsekscluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)
- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-awseksnodegroup-resource-section-in-maintf-to-create-aws-eks-node-group)
+ - [25. Uncomment aws eks cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)
+ - [26. Uncomment aws eks node group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node-group-resource-section-in-maintf-to-create-aws-eks-node-group)
 
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
@@ -812,7 +812,7 @@ commands will detect it and remind you to do so if necessary.
 ```
 
 
-<!-- - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)-->
+<!-- - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraformekstfvars-file-with-your-aws-security-credentials)-->
 ### 20. Fill up terraform.eks.tfvars file with your AWS security credentials
 
 * to start using **terrafrom** it only takes few commands to learn in the begining
@@ -1327,7 +1327,7 @@ Do you want to perform these actions?
 
 
 <!-- - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-awsekscluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)-->
-### 25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane
+### 25. Uncomment aws eks cluster section in main.tf to create AWS EKS cluster control plane
 
 This time it will be important to navigate to `main.tf` file and uncomment the section for the **resource: aws_eks_cluster** to provision AWS EKS cluster (Kubernetes control plane)
 
@@ -1418,7 +1418,7 @@ Do you want to perform these actions?
 
 
 <!-- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-awseksnodegroup-resource-section-in-maintf-to-create-aws-eks-node-group)-->
-### 26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group
+### 26. Uncomment aws eks node group resource section in main.tf to create AWS EKS node group
 
 ```bash
 
