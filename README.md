@@ -795,6 +795,20 @@ rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
 
+**Take a look** what is now stored in `.terraform` folder
+
+```bash
+ …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1 … 3  tree .terraform 
+.terraform
+└── plugins
+    └── linux_amd64
+        ├── lock.json
+        └── terraform-provider-aws_v2.60.0_x4
+
+2 directories, 2 files
+```
+
+
 <!-- - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)-->
 ### 20. Fill up terraform.eks.tfvars file with your AWS security credentials
 
