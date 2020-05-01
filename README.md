@@ -1,5 +1,4 @@
-**Starting AWS EKS cluster manually in AWS web console**
-
+**1. Starting AWS EKS cluster manually in AWS web console**
 
 
  - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)
@@ -19,6 +18,8 @@
  - [15. Clean up AWS EKS node group](#15-clean-up-aws-eks-node-group)
  - [16. Clean up AWS EKS control plane](#16-clean-up-aws-eks-control-plane)
  - [17. Delete AWS IAM roles](#17-delete-aws-iam-roles)
+
+**2. Using terrafrom to manage AWS EKS cluster**
  - [18. Install terrafrom binary at your local](#18-install-terrafrom-binary-at-your-local)
  - [19. Run terrafrom init and validate to initialize required plugins](#19-run-terrafrom-init-and-validate-to-initialize-required-plugins)
  - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)
@@ -27,7 +28,7 @@
  - [23. Run terraform apply uncomment sg.tf to create mandatory Security Group](#23-run-terraform-apply-uncomment-sg-tf-to-create-mandatory-security-group)
  - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnets-tf-and-run-terraform-apply-to-create-subnets-in-aws)
  - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-main-tf-to-create-aws-eks-cluster-control-plane)
- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node_group-resource-section-in-main-tf-to-create-aws-eks-node-group)
+ - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node-group-resource-section-in-main-tf-to-create-aws-eks-node-group)
 # 1. Starting AWS EKS cluster manually in AWS web console
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
@@ -1418,7 +1419,7 @@ Do you want to perform these actions?
 ![](img/main-eks-cp-tf-2.png)
 
 
-<!-- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node_group-resource-section-in-main-tf-to-create-aws-eks-node-group)-->
+<!-- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-awseksnodegroup-resource-section-in-maintf-to-create-aws-eks-node-group)-->
 ### 26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group
 
 ```bash
