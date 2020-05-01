@@ -173,15 +173,15 @@ aws iam list-users --profile devopsinuse
             "UserName": "devopsinuse",
             "UserId": "AFSDFSDFSDFSDFSD",
             "Arn": "arn:aws:iam::61111111116:user/devopsinuse",
-            "CreateDate": "2020-04-20T08:03:36Z",
-            "PasswordLastUsed": "2020-04-28T18:25:07Z"
+            "CreateDate": "...",
+            "PasswordLastUsed": "..."
         },
         {
             "Path": "/",
             "UserName": "terraform",
             "UserId": "ADSGDSDASDASFSDFSDB",
             "Arn": "arn:aws:iam::61111111116:user/terraform",
-            "CreateDate": "2020-04-28T10:24:32Z"
+            "CreateDate": "..."
         }
     ]
 }
@@ -976,8 +976,9 @@ aws_subnet_ids = {
 vpc_id = vpc-111117e
 ```
 
+### 22. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles
 
-### 22. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles 
+
 ### 23. Run terraform apply uncomment sg.tf to create mandatory Security Group 
 ### 24. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
 ### 25. Run terraform apply uncomment aws_eks_cluster in main.tf to create AWS EKS cluster control plane
