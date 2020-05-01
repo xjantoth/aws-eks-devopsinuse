@@ -1,12 +1,13 @@
 **Starting AWS EKS cluster manually in AWS web console**
 
 
+
  - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)
  - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)
  - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)
  - [4. Create an extra user and group in AWS with admin privilages](#4-create-an-extra-user-and-group-in-aws-with-admin-privilages)
  - [5. Install awscli and kubectl binaries](#5-install-awscli-and-kubectl-binaries)
- - [6. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)
+ - [6. Retrive programatic access from AWS and configure aws cli](#6-retrive-programatic-access-from-aws-and-configure-aws-cli)
  - [7. Create EKS control plane IAM role in AWS web console](#7-create-eks-control-plane-iam-role-in-aws-web-console)
  - [8. Create EKS node group IAM role in AWS web console](#8-create-eks-node-group-iam-role-in-aws-web-console)
  - [9. Create SSH key pain in AWS console](#9-create-ssh-key-pain-in-aws-console)
@@ -22,7 +23,6 @@
  - [19. Run terrafrom init and validate to initialize required plugins](#19-run-terrafrom-init-and-validate-to-initialize-required-plugins)
  - [20. Fill up terraform.eks.tfvars file with your AWS security credentials](#20-fill-up-terraform-eks-tfvars-file-with-your-aws-security-credentials)
  - [21. Run terrafrom plan and terrafrom apply](#21-run-terrafrom-plan-and-terrafrom-apply)
-
 
 # 1. Starting AWS EKS cluster manually in AWS web console
 
@@ -120,7 +120,7 @@ kubectl version --client
 ```
 ![](img/kubectl-1.png)
 
-<!-- - [6. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)-->
+<!-- - [6. Retrive programatic access from AWS and configure aws cli](#6-retrive-programatic-access-from-aws-and-configure-aws-cli)-->
 ### 6. Retrive programatic access from AWS and configure aws cli
 
 ![](img/aws-cli-2.png)
