@@ -28,6 +28,10 @@ resource "aws_security_group" "eks_cluster_node_group" {
 
   }
 
-  tags = var.custom_tags
+  tags = merge({
+    "kubernetes.io/cluster/${var.eks-cluster-name}" = "owned"
+    },
+    var.custom_tags
+  )
 }
 
