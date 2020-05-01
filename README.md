@@ -18,6 +18,8 @@
  - [17. Delete AWS IAM roles](#17-delete-aws-iam-roles)
 
 
+# 1. Starting AWS EKS cluster manually in AWS web console
+
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
 
@@ -712,19 +714,150 @@ status:
 ![](img/delete-eks-11.png)
 
 
-2. Using terrafrom to manage AWS EKS cluster
-### 17. Install terrafrom binary at your local
-### 18. Run terrafrom init and validate to initialize required plugins
-### 19. Fill up terraform.eks.tfvars file with your AWS security credentials
-### 20. Run terrafrom plan and terrafrom apply
-### 21. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles 
-### 22. Run terraform apply uncomment sg.tf to create mandatory Security Group 
-### 23. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
-### 24. Run terraform apply uncomment aws_eks_cluster in main.tf to create AWS EKS cluster control plane
-### 25. Run terraform apply uncomment aws_eks_node_group in main.tf to create AWS EKS node group
-### 26. Explore terrafrom console commands with custom tags variable
-### 27. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
-### 28. How to destroy AWS EKS by terrafrom destroy
+# 2. Using terrafrom to manage AWS EKS cluster
+
+### 18. Install terrafrom binary at your local
+
+Link: https://www.terraform.io/downloads.html
+
+![](img/terrform-1.png)
+
+**Download** `*.zip` file from the lin below. **Unzip** files to a proper location at your local e.g. `/usr/bin`.
+
+```bash
+curl -L --output /tmp/terraform.zip  \
+https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
+
+sudo unzip -d /usr/bin/ /tmp/terraform.zip 
+
+terraform -version
+Terraform v0.12.24
+```
+
+### 19. Run terrafrom init and validate to initialize required plugins
+
+Navigate to `eks-terraform` folder and list it to see the **terrafrom files**
+
+```bash
+cd eks-terraform
+tree
+.
+├── iam.tf
+├── main.tf
+├── outputs.tf
+├── sg.tf
+├── subnets.tf
+├── terraform.eks.tfvars
+├── terraform.eks.tfvars.git
+├── terraform.tfstate
+└── variables.tf
+```
+* Most of the files have completly **commented lines** for now.
+* When **touching this code** for the first time, there should be no hidden `.terrafrom` folder present. 
+* `.terraform` folder stores all neceassary **terrafrom plugins** used within this code
+* **plugins** will be downloaded to `terraform` folder  after `terraform init` command run
+
+```bash
+ …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1 … 1  terraform init 
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Checking for available provider plugins...
+- Downloading plugin for provider "aws" (hashicorp/aws) 2.60.0...
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = "..." constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.aws: version = "~> 2.60"
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+
+### 20. Fill up terraform.eks.tfvars file with your AWS security credentials
+
+* to start using **terrafrom** it only takes few commands to learn in the begining
+* most comonly used commands will be:
+  - `terraform init`
+  - `terraform plan`
+  - `terraform apply`
+  - `terraform destroy`
+  - `terraform show`
+  - `terraform console`
+  - `terraform validate`
+  - `terraform fmt -recursive`
+<br/>
+<br/>
+* Before running `terraform plan` and `terraform apply` to see what the code is about to create - it is **neceassary** to setup credentials to make **terrafrom** binary talk to AWS.
+
+* there are **several main ways** how to setup this communication: 
+  - **(1)** export **env. variables** to console you are using:
+
+    `export AWS_ACCESS_KEY_ID="..."` <br/>
+    `export AWS_SECRET_ACCESS_KEY="..."` <br/>
+    `export AWS_DEFAULT_REGION="eu-central-1"`
+
+  - **(2)** configure **two files** (since we configured **aws cli** `--profile`):
+
+    `~/.aws/credentials`<br/>
+    `~/.aws/config` 
+
+  - **(3)** use `-var-file` **flag** when running `terrafrom <command> -var-file terraform.eks.tfvars`<br/>
+    `terraform destroy  -var-file terraform.eks.tfvars`
+
+**Please** fill up file: `terraform.eks.tfvars`
+
+```bash
+ …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1 … 1  cat terraform.eks.tfvars
+aws_region     = "eu-central-1"
+aws_access_key = "A...C"
+aws_secret_key = "G...K"
+ssh_public_key = "/home/<username>/.ssh/eks-aws.pub"
+custom_tags = {
+  Name      = "diu-eks-cluster-tag"
+  Terraform = "true"
+  Delete    = "true"
+}
+
+eks-cluster-name = "diu-eks-cluster"
+```
+
+
+**Generate SSH key** pair:
+```bash
+SSH_KEYS=~/.ssh/eks-aws
+
+if [ ! -f "$SSH_KEYS" ]
+then
+   echo -e "\nCreating SSH keys ..."
+   ssh-keygen -t rsa -C "eks-aws" -N '' -f $SSH_KEYS
+else
+   echo -e "\nSSH keys are already in place!"
+fi
+```
+
+### 21. Run terrafrom plan and terrafrom apply
+### 22. Run terraform apply uncomment iam.tf to create mandatory AWS IAM roles 
+### 23. Run terraform apply uncomment sg.tf to create mandatory Security Group 
+### 24. Run terraform apply uncomment subnets.tf to create Subnets in AWS 
+### 25. Run terraform apply uncomment aws_eks_cluster in main.tf to create AWS EKS cluster control plane
+### 26. Run terraform apply uncomment aws_eks_node_group in main.tf to create AWS EKS node group
+### 27. Explore terrafrom console commands with custom tags variable
+### 28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
+### 29. How to destroy AWS EKS by terrafrom destroy
 
 3. Helm charts
 ### 29. Install helm v3 and helmfile binaries
