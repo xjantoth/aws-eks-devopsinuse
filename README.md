@@ -27,7 +27,7 @@
  - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnetstf-and-run-terraform-apply-to-create-subnets-in-aws)
  - [25. Uncomment aws eks cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)
  - [26. Uncomment aws eks node group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node-group-resource-section-in-maintf-to-create-aws-eks-node-group)
-
+ - [28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#28-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
@@ -1532,6 +1532,8 @@ kube-system   kube-proxy-z945r           1/1     Running   0          11m
 
 
 ### 27. Explore terrafrom console commands with custom tags variable
+
+<!-- - [28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#28-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)-->
 ### 28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
 
 ```bash
