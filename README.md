@@ -43,6 +43,19 @@
 <!-- - [2. EKS cluster costs few cents per hour](#2-eks-cluster-costs-few-cents-per-hour)-->
 ### 2. EKS cluster costs few cents per hour
 
+* **Kubernetes** is:
+  - portable, 
+  - extensible, 
+  - open-source platform 
+* for managing containerized workloads and services, that **facilitates** both:
+  -  declarative configuration, 
+  -  automation. 
+* It has a large, rapidly growing ecosystem. 
+
+* **platform** helps you to schedule  docker containers and perform robust deployments
+
+![](img/eks-not-free-4.png)
+
 * **assuming** that **AWS Free Tier** is used for this course 
   - `t2.micro` instance (is complient for **AWS Free Tier** usage)
   - `t3.micro` instance (is complient for **AWS Free Tier** usage)
