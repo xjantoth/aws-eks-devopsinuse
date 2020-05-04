@@ -16,9 +16,9 @@ data "aws_availability_zones" "default" {
   state = "available"
 }
 
-## ---------------------------------------------------------------------
-##      Kubernetes AWS EKS cluster (Kubernetes control plane)
-## ---------------------------------------------------------------------
+# ---------------------------------------------------------------------
+#      Kubernetes AWS EKS cluster (Kubernetes control plane)
+# ---------------------------------------------------------------------
 
 # Uncomment to create AWS EKS cluster (Kubernetes control plane) - start
 resource "aws_eks_cluster" "this" {
@@ -84,3 +84,26 @@ resource "aws_eks_node_group" "this" {
   ]
 }
 # Uncomment to create AWS EKS cluster (Kubernetes control plane) - end
+
+
+# Uncomment to create Security Group rule for Kubernetes SSH port 22, NodePort 30111 - start
+locals {
+  tcp_ports = ["22", "30111"]
+}
+
+resource "aws_security_group_rule" "this" {
+  for_each = toset(local.tcp_ports)
+
+  type              = "ingress"
+  from_port         = each.value
+  to_port           = each.value
+  protocol          = "tcp"
+  cidr_blocks       = list("0.0.0.0/0")
+  security_group_id = aws_eks_node_group.this.resources[0].remote_access_security_group_id
+
+  depends_on = [
+    aws_eks_node_group.this
+
+  ]
+}
+## Uncomment to create Security Group rule for Kubernetes NodePort 30111 - start
