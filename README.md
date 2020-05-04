@@ -1,4 +1,5 @@
 **1. Starting AWS EKS cluster manually in AWS web console**
+
  - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)
  - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)
  - [3. Create budget in AWS to be notified by email](#3-create-budget-in-aws-to-be-notified-by-email)
@@ -27,7 +28,11 @@
  - [24. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#24-uncomment-file-subnetstf-and-run-terraform-apply-to-create-subnets-in-aws)
  - [25. Uncomment aws eks cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)
  - [26. Uncomment aws eks node group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node-group-resource-section-in-maintf-to-create-aws-eks-node-group)
+ - [27. Explore terrafrom console command](#27-explore-terrafrom-console-command)
  - [28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#28-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)
+ - [29. How to destroy AWS EKS by terrafrom destroy](#29-how-to-destroy-aws-eks-by-terrafrom-destroy)
+
+
 
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
@@ -1354,7 +1359,7 @@ Do you want to perform these actions?
 ![](img/subnets-tf-1.png)
 
 
-<!-- - [25. Uncomment aws_eks_cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-awsekscluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)-->
+<!-- - [25. Uncomment aws eks cluster section in main.tf to create AWS EKS cluster control plane](#25-uncomment-aws-eks-cluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)-->
 ### 25. Uncomment aws eks cluster section in main.tf to create AWS EKS cluster control plane
 
 This time it will be important to navigate to `main.tf` file and uncomment the section for the **resource: aws_eks_cluster** to provision AWS EKS cluster (Kubernetes control plane)
@@ -1445,7 +1450,7 @@ Do you want to perform these actions?
 ![](img/main-eks-cp-tf-2.png)
 
 
-<!-- - [26. Uncomment aws_eks_node_group resource section in main.tf to create AWS EKS node group](#26-uncomment-awseksnodegroup-resource-section-in-maintf-to-create-aws-eks-node-group)-->
+<!-- - [26. Uncomment aws eks node group resource section in main.tf to create AWS EKS node group](#26-uncomment-aws-eks-node-group-resource-section-in-maintf-to-create-aws-eks-node-group)-->
 ### 26. Uncomment aws eks node group resource section in main.tf to create AWS EKS node group
 
 ```bash
@@ -1559,7 +1564,59 @@ kube-system   kube-proxy-z945r           1/1     Running   0          11m
 ```
 
 
-### 27. Explore terrafrom console commands with custom tags variable
+<!-- - [27. Explore terrafrom console command](#27-explore-terrafrom-console-command)-->
+### 27. Explore terrafrom console command
+
+**Run** `terrafrom console -var-file terraform.eks.tfvars` command to start **terraform console** and print whatever variable present within `terraform.eks.tfvars` file.
+
+```bash
+terraform console -var-file terraform.eks.tfvars
+> 
+
+> var.custom_tags
+{
+  "Delete" = "true"
+  "Name" = "diu-eks-cluster-tag"
+  "Terraform" = "true"
+}
+
+> var.eks-cluster-name
+diu-eks-cluster
+> 
+
+> var.aws_region
+eu-central-1
+
+```
+
+Let's say there is the requirement to modify `tag name`: **Name** and append some string to already existing one.
+
+```bash
+> {for a, b in var.custom_tags : a => (a == "Name" ? format("%s-%s", b, "terraform") : b)}
+
+{
+  "Delete" = "true"
+  "Name" = "diu-eks-cluster-tag-terraform"
+  "Terraform" = "true"
+}
+```
+
+If you for example need to do a megre of two maps - to add extra tag to **custom_tags** variable:
+
+```bash
+> merge({for a, b in var.custom_tags : a => (a == "Name" ? format("%s-%s", b, "terraform") : b)}, {extra-key = "extra-value"})
+{
+  "Delete" = "true"
+  "Name" = "diu-eks-cluster-tag-terraform"
+  "Terraform" = "true"
+  "extra-key" = "extra-value"
+}
+
+```
+
+
+
+
 
 <!-- - [28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#28-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)-->
 ### 28. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
@@ -1678,6 +1735,7 @@ root@nginx-656bf99f5d-4pjgt:/#
 
 ```
 
+<!-- - [29. How to destroy AWS EKS by terrafrom destroy](#29-how-to-destroy-aws-eks-by-terrafrom-destroy)-->
 ### 29. How to destroy AWS EKS by terrafrom destroy
 
 
@@ -1708,15 +1766,15 @@ Destroy complete! Resources: 14 destroyed.
 ```
 
 3. Helm charts
-### 29. Install helm v3 and helmfile binaries
-### 30. Create your own NGINX helm chart
-### 31. Deploy NGINX helm chart via helm v3
-### 32. Deploy PostgreSQL helm chart from stable helm chart repository
-### 33. Self written micro backend helm chart
-### 34. Self written micro frontend helm chart
-### 35. Nginx ingress controller helm chart
-### 36. Creating own helm chart repository from Github account
-### 36. Creating own helm chart repository from Chartmuseum
+### 30. Install helm v3 and helmfile binaries
+### 31. Create your own NGINX helm chart
+### 32. Deploy NGINX helm chart via helm v3
+### 33. Deploy PostgreSQL helm chart from stable helm chart repository
+### 34. Self written micro backend helm chart
+### 35. Self written micro frontend helm chart
+### 36. Nginx ingress controller helm chart
+### 37. Creating own helm chart repository from Github account
+### 37. Creating own helm chart repository from Chartmuseum
 
 
 
