@@ -32,6 +32,28 @@
 <!-- - [1. EKS cluster costs few cents per hour](#1-eks-cluster-costs-few-cents-per-hour)-->
 ### 1. EKS cluster costs few cents per hour
 
+* **assuming** that **AWS Free Tier** is used for this course 
+  - `t2.micro` instance (is complient for **AWS Free Tier** usage)
+  - `t3.micro` instance (is complient for **AWS Free Tier** usage)
+
+![](img/eks-not-free-1.png)
+
+
+* what **has to be paid for** is **AWS EKS control plane** (Kubernetes masters)
+* AWS charges **$0.10 / per hour** per **AWS EKS cluster**
+* if AWS EKS cluster is **used for 10 hours**:  `10h x $0.10 = $1.0` plus TAX
+* **Shut down** your **AWS EKS Kubernetes cluster** whenever not **using it !!!**
+
+
+![](img/eks-not-free-2.png)
+
+
+* ***Amazon Container Services*** section in AWS console
+* region: **Frankfurt (eu-central-1)** has been choosen which indicates **$0.10 / per hour** per **AWS EKS cluster**
+
+![](img/eks-not-free-3.png)
+
+
 <!-- - [2. Allow seeing billing data for IAM user](#2-allow-seeing-billing-data-for-iam-user)-->
 ### 2. Allow seeing billing data for IAM user
 
@@ -1620,12 +1642,12 @@ ip-172-31-102-164.eu-central-1.compute.internal	35.158.24.165
 
 ```bash
 ssh -o "IdentitiesOnly yes" \
--i  ~/.ssh/eks-aws.pem \
+-i  ~/.ssh/eks-aws \
 ec2-user@35.158.24.165 \
 -L30111:127.0.0.1:30111
 
 ssh -o "IdentitiesOnly yes" \
--i  ~/.ssh/eks-aws.pem \
+-i  ~/.ssh/eks-aws \
 ec2-user@18.156.166.86 \
 -L30111:127.0.0.1:30111
 
