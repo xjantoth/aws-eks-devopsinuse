@@ -10,7 +10,7 @@
  - [7. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)
  - [8. Create EKS control plane IAM role in AWS web console](#8-create-eks-control-plane-iam-role-in-aws-web-console)
  - [9. Create EKS node group IAM role in AWS web console](#9-create-eks-node-group-iam-role-in-aws-web-console)
- - [10. Create SSH key pain in AWS console](#10-create-ssh-key-pain-in-aws-console)
+ - [10. Create SSH key pair in AWS console](#10-create-ssh-key-pair-in-aws-console)
  - [11. Create EKS cluster in AWS web console](#11-create-eks-cluster-in-aws-web-console)
  - [12. Create EKS node group in AWS web console](#12-create-eks-node-group-in-aws-web-console)
  - [13. Create KUBECONFIG at your local](#13-create-kubeconfig-at-your-local)
@@ -314,8 +314,8 @@ Role ***DIU-EKSNodeGroupRole*** is finally created
 ![](img/eks-iam-node-group-7.png)
 
 
-<!-- - [10. Create SSH key pain in AWS console](#10-create-ssh-key-pain-in-aws-console)-->
-### 10. Create SSH key pain in AWS console
+<!-- - [10. Create SSH key pair in AWS console](#10-create-ssh-key-pain-in-aws-console)-->
+### 10. Create SSH key pair in AWS console
 
 ![](img/ssh-keys-1.png)
 
