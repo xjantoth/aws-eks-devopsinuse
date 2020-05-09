@@ -109,17 +109,32 @@
 <!-- - [4. Create budget in AWS to be notified by email](#4-create-budget-in-aws-to-be-notified-by-email)-->
 ### 4. Create budget in AWS to be notified by email
 
+Find a **Budget** section in AWS web console and hit **Create a budget** button.
+
 ![](img/budget-1.png)
+
+Select **Cost budget** - this is the most simple and reasonable option for now.
 
 ![](img/budget-2.png)
 
+**Assing some Name** to your budget.
+
 ![](img/budget-3.png)
+
+
+**Choose** *Budget Amount* e.g. $5 (Whatever amont you like)
 
 ![](img/budget-4.png)
 
+Find **Email constacts** section and input some email address you would like to be notified at.
+
 ![](img/budget-5.png)
 
+Hit **Confirm bufget** button and everything should be set up.
+
 ![](img/budget-6.png)
+
+Finally hit **Create** button.
 
 ![](img/budget-7.png)
 
