@@ -428,14 +428,14 @@ Create configmap kubernetes object **nginx-cm**
 cd deployment-eks-nginx-manual/
 
 kubectl create configmap nginx-cm \
---from-file=index-eks-nginx-manual.html \
---from-file=index-eks-nginx-manual_files/bootstrap.min.css \
---from-file=index-eks-nginx-manual_files/bootstrap.min.js \ 
---from-file=index-eks-nginx-manual_files/Chart.min.js \
---from-file=index-eks-nginx-manual_files/dashboard.css \
---from-file=index-eks-nginx-manual_files/feather.min.js \
---from-file=index-eks-nginx-manual_files/jquery-3.2.1.slim.min.js \
---from-file=index-eks-nginx-manual_files/popper.min.js
+--from-file="index-eks-nginx-manual.html" \
+--from-file="index-eks-nginx-manual_files/bootstrap.min.css" \
+--from-file="index-eks-nginx-manual_files/bootstrap.min.js" \ 
+--from-file="index-eks-nginx-manual_files/Chart.min.js" \
+--from-file="index-eks-nginx-manual_files/dashboard.css" \
+--from-file="index-eks-nginx-manual_files/feather.min.js" \
+--from-file="index-eks-nginx-manual_files/jquery-3.2.1.slim.min.js" \
+--from-file="index-eks-nginx-manual_files/popper.min.js"
 ```
 
 **Explore** file: `deployment-eks-nginx-manual.yaml` for creating **deployment** and **service** Kubernetes objects
