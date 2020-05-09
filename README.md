@@ -403,8 +403,7 @@ kube-system   kube-proxy-ncm6q           1/1     Running   0          9m14s
 kube-system   kube-proxy-zffwq           1/1     Running   0          9m7s
 ```
 
-<!-- - [14. First NGINX deployment by kubectl to AWS EKS cluster created manually](#14-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)-->
-### 14. First NGINX deployment by kubectl to AWS EKS cluster created manually
+### 14. Create configmap for NGINX deployment to AWS EKS cluster
 
 ```bash
 tree deployment-eks-nginx-manual
@@ -439,6 +438,8 @@ kubectl create configmap nginx-cm \
 ```
 
 **Explore** file: `deployment-eks-nginx-manual.yaml` for creating **deployment** and **service** Kubernetes objects
+
+![](img/nginx-1.png)
 
 ```yaml
 ---
@@ -538,11 +539,9 @@ spec:
     app: nginx
 
 ```
-**Allow** port `30111` in ***Security Group*** section in AWS console
+![](img/nginx-1.png)
 
-![](img/sg-2.png)
-
-
+### 15. Execute Nginx deployment against AWS EKS Kubernetes cluster
 **Execute deployment** of your **Nginx** web server with **custom content**
 ```bash
 kubectl apply -f deployment-eks-nginx-manual.yaml
@@ -556,14 +555,17 @@ NAME    EXTERNAL-IP
 ip-172-31-20-97.eu-central-1.compute.internal   35.157.105.203
 ip-172-31-3-232.eu-central-1.compute.internal   3.121.160.180
 ```
+**Allow** port `30111` in ***Security Group*** section in AWS console
 
+![](img/sg-2.png)
 
 ![](img/eks-manual-nginx-nodes-1.png)
+
 ![](img/eks-manual-nginx-nodes-2.png)
 
 
 
-SSH tunnel approach without the need to seup Security group in AWS
+**SSH tunnel approach** without the need to seup Security group in AWS
 
 ```bash
 ssh -o "IdentitiesOnly yes" \
@@ -574,9 +576,12 @@ ec2-user@35.157.105.203 \
 ![](img/ssh-keys-4.png)
 
 
+### 16. Explore Nginx pod by attaching to a running container
 
 Explore Nginx pod by attaching to **a running container**
 
+
+**Get the list** of all available pods within **default** namespace
 ```bash
 kubectl get pods                                    
 NAME                     READY   STATUS    RESTARTS   AGE
@@ -600,11 +605,11 @@ total 516
 -rw-r--r-- 1 root root  10:17 popper.min.js
 ```
 
+**Ask Kubernetes** to provide a list of available **deployments**
 
 ```bash
 # get all deployments in default namespace
 kubectl get deployment nginx -o yaml         
-
 
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -722,6 +727,7 @@ status:
 
 ```
 
+**Ask Kubernetes** for all available services within **default** namespace
 
 ```bash
 kubectl get service  nginx -o yaml
@@ -753,15 +759,46 @@ status:
   loadBalancer: {}
 ```
 
-<!-- - [15. Clean up Network Interfaces](#15-clean-up-network-interfaces)-->
-### 15. Clean up Network Interfaces
+### 17. SSH to physical EC2 instances within your Kubernetes cluster in AWS
+
+In order to **SSH you your Kubenretes cluster EC2 instances**, it is important to **allow** (enable) port `22` in **Security Group** in AWS web console
+
+
+**Retrive IP Addresses** of your physical nodes (EC2 instances) in AWS
+
+```bash
+kubectl get nodes -o wide | awk -F" " '{print $1"\t"$7}'
+NAME    EXTERNAL-IP
+ip-172-31-20-97.eu-central-1.compute.internal   35.157.105.203
+ip-172-31-3-232.eu-central-1.compute.internal   3.121.160.180
+```
+
+**SSH** to a node (EC2 instance) with the **first IP Address**
+
+```bash
+ssh -o "IdentitiesOnly yes" \
+-i  ~/.ssh/devopsinuse.pem \
+ec2-user@35.157.105.203 
+```
+
+**SSH** to a node (EC2 instance) with **the second IP Address**
+
+```bash
+ssh -o "IdentitiesOnly yes" \
+-i  ~/.ssh/devopsinuse.pem \
+ec2-user@3.121.160.180
+```
+
+
+### 18. Clean up
+
+Clean up **Network Interfaces**
 
 ![](img/delete-eks-1.png)
 
 ![](img/delete-eks-2.png)
 
-<!-- - [16. Clean up AWS EKS node group](#16-clean-up-aws-eks-node-group)-->
-### 16. Clean up AWS EKS node group
+Clean up **AWS EKS node group**
 
 ![](img/delete-eks-3.png)
 
@@ -772,8 +809,7 @@ status:
 ![](img/delete-eks-6.png)
 
 
-<!-- - [17. Clean up AWS EKS control plane](#17-clean-up-aws-eks-control-plane)-->
-### 17. Clean up AWS EKS control plane
+Clean up **AWS EKS control plane**
 
 ![](img/delete-eks-7.png)
 
@@ -783,8 +819,7 @@ status:
 
 ![](img/delete-eks-10.png)
 
-<!-- - [18. Delete AWS IAM roles](#18-delete-aws-iam-roles)-->
-### 18. Delete AWS IAM roles
+Delete **AWS IAM roles**
 
 ![](img/delete-eks-11.png)
 
