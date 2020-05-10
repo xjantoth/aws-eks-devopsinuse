@@ -13,18 +13,18 @@ output "aws_availability_zones" {
 # this code partially - otherwise uncommnet all at once
 # -----------------------------------------------------
 
-## Uncomment  for "iam.tf" lecture - start
-#output "aws_iam_role_diu_eks_cluster" {
-#  description = "AWS IAM role for diu-eks-cluster eks cluster"
-#  value       = aws_iam_role.diu-eks-cluster.id
-#}
-#
-#output "aws_iam_role_diu_eks_cluster_node_group" {
-#  description = "AWS IAM role for diu-eks-cluster-node-group eks cluster"
-#  value       = aws_iam_role.diu-eks-cluster-node-group.id
-#}
-## Uncomment  for "iam.tf" lecture - end
-#
+# Uncomment  for "iam.tf" lecture - start
+output "aws_iam_role_diu_eks_cluster" {
+  description = "AWS IAM role for diu-eks-cluster eks cluster"
+  value       = aws_iam_role.diu-eks-cluster.id
+}
+
+output "aws_iam_role_diu_eks_cluster_node_group" {
+  description = "AWS IAM role for diu-eks-cluster-node-group eks cluster"
+  value       = aws_iam_role.diu-eks-cluster-node-group.id
+}
+# Uncomment  for "iam.tf" lecture - end
+
 #
 ## Uncomment  for "sg.tf" lecture - start
 #output "aws_sg_diu_eks_cluster_node_group" {

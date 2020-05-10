@@ -1153,8 +1153,8 @@ Terraform will perform the following actions:
 ![](img/iam-tf-1.png)
 
 
-<!-- - [24. Run terraform apply uncomment sg.tf to create mandatory Security Group](#24-run-terraform-apply-uncomment-sgtf-to-create-mandatory-security-group)-->
-### 24. Run terraform apply uncomment sg.tf to create mandatory Security Group 
+<!-- - [24. Run terraform apply uncomment sg.tf to create extra Security Group](#24-run-terraform-apply-uncomment-sgtf-to-create-extra-security-group)-->
+### 24. Run terraform apply uncomment sg.tf to create extra Security Group 
 
 https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html
 
