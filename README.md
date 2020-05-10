@@ -1039,15 +1039,6 @@ aws_availability_zones = {
     "euc1-az1",
   ]
 }
-aws_subnet_ids = {
-  "id" = "vpc-111117e"
-  "ids" = [
-    "subnet-1f3cc963",
-    "subnet-9b75cbf1",
-    "subnet-ca01f986",
-  ]
-  "vpc_id" = "vpc-111117e"
-}
 vpc_id = vpc-111117e
 ```
 
