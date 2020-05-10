@@ -1,39 +1,8 @@
 **Starting AWS EKS cluster manually in AWS web console**
 
 
- - [1. Introduction](#1-introduction)
- - [2. EKS cluster costs few cents per hour](#2-eks-cluster-costs-few-cents-per-hour)
- - [3. Allow seeing billing data for IAM user](#3-allow-seeing-billing-data-for-iam-user)
- - [4. Create budget in AWS to be notified by email](#4-create-budget-in-aws-to-be-notified-by-email)
- - [5. Create an extra user and group in AWS with admin privilages](#5-create-an-extra-user-and-group-in-aws-with-admin-privilages)
- - [6. Install awscli and kubectl binaries](#6-install-awscli-and-kubectl-binaries)
- - [7. Retrive programatic access from AWS and configure aws cli](#7-retrive-programatic-access-from-aws-and-configure-aws-cli)
- - [8. Create EKS control plane IAM role in AWS web console](#8-create-eks-control-plane-iam-role-in-aws-web-console)
- - [9. Create EKS node group IAM role in AWS web console](#9-create-eks-node-group-iam-role-in-aws-web-console)
- - [10. Create SSH key pair in AWS console](#10-create-ssh-key-pair-in-aws-console)
- - [11. Create EKS cluster in AWS web console](#11-create-eks-cluster-in-aws-web-console)
- - [12. Create EKS node group in AWS web console](#12-create-eks-node-group-in-aws-web-console)
- - [13. Create KUBECONFIG at your local](#13-create-kubeconfig-at-your-local)
- - [14. First NGINX deployment by kubectl to AWS EKS cluster created manually](#14-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-manually)
- - [15. Clean up Network Interfaces](#15-clean-up-network-interfaces)
- - [16. Clean up AWS EKS node group](#16-clean-up-aws-eks-node-group)
- - [17. Clean up AWS EKS control plane](#17-clean-up-aws-eks-control-plane)
- - [18. Delete AWS IAM roles](#18-delete-aws-iam-roles)
 
 **Using terrafrom to manage AWS EKS cluster**
-
- - [19. Install terrafrom binary at your local](#19-install-terrafrom-binary-at-your-local)
- - [20. Run terrafrom init and validate to initialize required plugins](#20-run-terrafrom-init-and-validate-to-initialize-required-plugins)
- - [21. Fill up terraform.eks.tfvars file with your AWS security credentials](#21-fill-up-terraformekstfvars-file-with-your-aws-security-credentials)
- - [22. Run terrafrom plan and terrafrom apply](#22-run-terrafrom-plan-and-terrafrom-apply)
- - [23. Uncomment iam.tf and run terrafrom apply to create mandatory AWS IAM roles](#23-uncomment-iamtf-and-run-terrafrom-apply-to-create-mandatory-aws-iam-roles)
- - [24. Run terraform apply uncomment sg.tf to create mandatory Security Group](#24-run-terraform-apply-uncomment-sgtf-to-create-mandatory-security-group)
- - [25. Uncomment file subnets.tf and run terraform apply to create Subnets in AWS](#25-uncomment-file-subnetstf-and-run-terraform-apply-to-create-subnets-in-aws)
- - [26. Uncomment aws eks cluster section in main.tf to create AWS EKS cluster control plane](#26-uncomment-aws-eks-cluster-section-in-maintf-to-create-aws-eks-cluster-control-plane)
- - [27. Uncomment aws eks node group resource section in main.tf to create AWS EKS node group](#27-uncomment-aws-eks-node-group-resource-section-in-maintf-to-create-aws-eks-node-group)
- - [28. Explore terrafrom console command](#28-explore-terrafrom-console-command)
- - [29. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#29-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)
- - [30. How to destroy AWS EKS by terrafrom destroy](#30-how-to-destroy-aws-eks-by-terrafrom-destroy)
 
 
 
