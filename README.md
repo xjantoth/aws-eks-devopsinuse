@@ -1408,6 +1408,7 @@ vim main.tf
 resource "aws_eks_cluster" "this" {
   name     = var.eks-cluster-name
   role_arn = aws_iam_role.diu-eks-cluster.arn
+  version  = "1.16"
 
   vpc_config {
     # subnet_ids = ["${aws_subnet.example1.id}", "${aws_subnet.example2.id}"]

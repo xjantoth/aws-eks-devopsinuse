@@ -26,21 +26,21 @@ output "aws_iam_role_diu_eks_cluster_node_group" {
 # Uncomment  for "iam.tf" lecture - end
 
 #
-## Uncomment  for "sg.tf" lecture - start
-#output "aws_sg_diu_eks_cluster_node_group" {
-#  description = "AWS Security Group for diu-eks-cluster-node-group eks cluster"
-#  value       = aws_security_group.eks_cluster_node_group.name
-#}
-## Uncomment  for "sg.tf" lecture - end
+# Uncomment  for "sg.tf" lecture - start
+output "aws_sg_diu_eks_cluster_node_group" {
+  description = "AWS Security Group for diu-eks-cluster-node-group eks cluster"
+  value       = aws_security_group.eks_cluster_node_group.name
+}
+# Uncomment  for "sg.tf" lecture - end
+
 #
-#
-## Uncomment  for "subnets.tf" lecture - start
-#output "aws_subnet_list_of_ids" {
-#  description = "AWS subnet ids"
-#  value       = [for subnet in [for value in aws_subnet.this : value] : subnet.id]
-#}
-## Uncomment  for "subnets.tf" lecture - end
-#
+# Uncomment  for "subnets.tf" lecture - start
+output "aws_subnet_list_of_ids" {
+  description = "AWS subnet ids"
+  value       = [for subnet in [for value in aws_subnet.this : value] : subnet.id]
+}
+# Uncomment  for "subnets.tf" lecture - end
+
 #
 ## Uncomment  for "main.tf" aws_eks_cluster resource lecture - start
 #output "endpoint" {
