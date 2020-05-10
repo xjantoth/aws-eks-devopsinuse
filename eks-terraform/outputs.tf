@@ -41,29 +41,29 @@ output "aws_subnet_list_of_ids" {
 }
 # Uncomment  for "subnets.tf" lecture - end
 
-#
-## Uncomment  for "main.tf" aws_eks_cluster resource lecture - start
-#output "endpoint" {
-#  description = "AWS EKS cluster (Kubernetes control plane) endpoint"
-#  value       = aws_eks_cluster.this.endpoint
-#}
-#
-#output "kubeconfig-certificate-authority-data" {
-#  description = "AWS EKS cluster (Kubernetes control plane) kubeconfig"
-#  value       = aws_eks_cluster.this.certificate_authority.0.data
-#}
-## Uncomment  for "main.tf" aws_eks_cluster resource lecture - end
-#
-#
-## Uncomment  for "main.tf" aws_eks_node_group resource lecture - start
-#output "aws_key_pair" {
-#  description = "AWS ssh key pair to be used when SSH to Kubernetes nodes"
-#  value       = aws_key_pair.this.key_name
-#}
-#
-#output "aws_eks_node_group" {
-#  description = "AWS EKS node group (Kubernetes nodes) kubeconfig"
-#  value       = aws_eks_node_group.this.id
-#}
-## Uncomment  for "main.tf" aws_eks_cluster resource lecture - start
+
+# Uncomment  for "main.tf" aws_eks_cluster resource lecture - start
+output "endpoint" {
+  description = "AWS EKS cluster (Kubernetes control plane) endpoint"
+  value       = aws_eks_cluster.this.endpoint
+}
+
+output "kubeconfig-certificate-authority-data" {
+  description = "AWS EKS cluster (Kubernetes control plane) kubeconfig"
+  value       = aws_eks_cluster.this.certificate_authority.0.data
+}
+# Uncomment  for "main.tf" aws_eks_cluster resource lecture - end
+
+
+# Uncomment  for "main.tf" aws_eks_node_group resource lecture - start
+output "aws_key_pair" {
+  description = "AWS ssh key pair to be used when SSH to Kubernetes nodes"
+  value       = aws_key_pair.this.key_name
+}
+
+output "aws_eks_node_group" {
+  description = "AWS EKS node group (Kubernetes nodes) kubeconfig"
+  value       = aws_eks_node_group.this.id
+}
+# Uncomment  for "main.tf" aws_eks_cluster resource lecture - start
 

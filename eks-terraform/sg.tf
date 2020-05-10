@@ -33,5 +33,6 @@ resource "aws_security_group" "eks_cluster_node_group" {
     },
     var.custom_tags
   )
+
 }
 

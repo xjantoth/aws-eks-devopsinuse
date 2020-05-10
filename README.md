@@ -1567,7 +1567,8 @@ Do you want to perform these actions?
 
 ![](img/main-eks-ng-tf-2.png)
 
-**Setup** communication between **your PC** and **AWS EKS** cluster 
+<!-- - [28. Setup communication between your PC and AWS EKS cluster](#28-setup-communication-between-your-pc-and-aws-eks-cluster)-->
+### 28. Setup communication between your PC and AWS EKS cluster
 
 ```bash
 echo "" > ~/.kube/config && cat ~/.kube/config
@@ -1575,7 +1576,7 @@ echo "" > ~/.kube/config && cat ~/.kube/config
 aws eks --region eu-central-1 \
 update-kubeconfig \
 --name diu-eks-cluster \
---profile devopsinuse
+--profile devopsinuse &> /dev/null
 
 Added new context arn:aws:eks:eu-central-1:611111116:cluster/diu-eks-cluster to /home/<username>/.kube/config
 ```
@@ -1601,8 +1602,8 @@ kube-system   kube-proxy-z945r           1/1     Running   0          11m
 ```
 
 
-<!-- - [28. Explore terrafrom console command](#28-explore-terrafrom-console-command)-->
-### 28. Explore terrafrom console command
+<!-- - [29. Explore terrafrom console command](#29-explore-terrafrom-console-command)-->
+### 29. Explore terrafrom console command
 
 **Run** `terrafrom console -var-file terraform.eks.tfvars` command to start **terraform console** and print whatever variable present within `terraform.eks.tfvars` file.
 
@@ -1652,11 +1653,8 @@ If you for example need to do a megre of two maps - to add extra tag to **custom
 ```
 
 
-
-
-
-<!-- - [29. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#29-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)-->
-### 29. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
+<!-- - [30. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#30-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)-->
+### 30. First NGINX deployment by kubectl to AWS EKS cluster created by terraform
 
 ```bash
 deployment-eks-nginx-terraform
@@ -1772,8 +1770,8 @@ root@nginx-656bf99f5d-4pjgt:/#
 
 ```
 
-<!-- - [30. How to destroy AWS EKS by terrafrom destroy](#30-how-to-destroy-aws-eks-by-terrafrom-destroy)-->
-### 30. How to destroy AWS EKS by terrafrom destroy
+<!-- - [31. How to destroy AWS EKS by terrafrom destroy](#31-how-to-destroy-aws-eks-by-terrafrom-destroy)-->
+### 31. How to destroy AWS EKS by terrafrom destroy
 
 
 **Run** `terraform destroy  -var-file terraform.eks.tfvars` command to **delete all prevoiusly** created AWS resources
@@ -1801,6 +1799,20 @@ aws_iam_role.diu-eks-cluster: Destruction complete after 1s
 ...
 Destroy complete! Resources: 14 destroyed.
 ```
+
+
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 3. Helm charts
 ### 31. Install helm v3 and helmfile binaries
