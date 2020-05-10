@@ -796,11 +796,13 @@ Delete **AWS IAM roles**
 # 2. Using terrafrom to manage AWS EKS cluster
 
 <!-- - [19. Install terrafrom binary at your local](#19-install-terrafrom-binary-at-your-local)-->
+
+
 ### 19. Install terrafrom binary at your local
 
 Link: https://www.terraform.io/downloads.html
 
-![](img/terrform-1.png)
+![](img/terraform-3.png)
 
 **Download** `*.zip` file from the lin below. **Unzip** files to a proper location at your local e.g. `/usr/bin`.
 
