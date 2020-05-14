@@ -39,6 +39,8 @@ resource "aws_eks_cluster" "this" {
     aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSServicePolicy,
   ]
 }
+
+
 # Uncomment to create AWS EKS cluster (Kubernetes control plane) - start
 
 
@@ -80,7 +82,7 @@ resource "aws_eks_node_group" "this" {
   depends_on = [
     aws_eks_cluster.this,
     aws_key_pair.this,
-    aws_security_group.eks_cluster_node_group, 
+    aws_security_group.eks_cluster_node_group,
     aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEC2ContainerRegistryReadOnly,

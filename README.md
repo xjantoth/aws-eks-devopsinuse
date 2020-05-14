@@ -1812,32 +1812,233 @@ root@nginx-656bf99f5d-4pjgt:/#
 
 ![](img/terraform-4.png)
 **Run** `terraform destroy  -var-file terraform.eks.tfvars` command to **delete all prevoiusly** created AWS resources
+
+**Quick recap** on how the cluster was brought to life.
+
+prerequisites:
+  - **Clear some** left overs from: ~/.kube/config file 
 ```bash
-terraform destroy  -var-file terraform.eks.tfvars
+echo "" > ~/.kube/config && cat ~/.kube/config
+```
+
+  - **Navigate** to terraform code folder
+```bash
+cd eks-terraform
+rm terraform.tfstate.backup terraform.tfstate .terraform -rf
+ls  ~/.ssh/eks-aws.pub
+/home/jantoth/.ssh/eks-aws.pub: OpenSSH RSA public key
+
+```
+
+  - **Make** sure that terraform.eks.tfvars file is configured correctlly
+and remeber that at this point **most of the terrafrom code** has comments - effectively it will not be take into an account
+```bash
+terraform init
+terraform validate
+terraform fmt -recursive
+terraform apply -var-file terraform.eks.tfvars
+```
+
+1. Remove the **comments** from `iam.tf` file
+```bash
+# Check AWS IAM Roles before running terraform apply ...
+aws iam list-roles --profile devopsinuse --region eu-central-1 | jq '.Roles [].RoleName'
+"AWSServiceRoleForAmazonEKS"
+"AWSServiceRoleForAmazonEKSNodegroup"
+"AWSServiceRoleForAutoScaling"
+"AWSServiceRoleForSupport"
+"AWSServiceRoleForTrustedAdvisor"
+
+# Create 2 IAM AWS Roles and make sure htat you uncommented iam.tf file
+terraform apply -var-file terraform.eks.tfvars
+
+# if there is no any issue 2 IAM AWS Roles will be created
+aws iam list-roles --profile devopsinuse --region eu-central-1 | jq '.Roles [].RoleName' 
+"AWSServiceRoleForAmazonEKS"
+"AWSServiceRoleForAmazonEKSNodegroup"
+"AWSServiceRoleForAutoScaling"
+"AWSServiceRoleForSupport"
+"AWSServiceRoleForTrustedAdvisor"
+"diu-EksClusterIAMRole-tf"
+"diu-EksClusterNodeGroup-tf"
+```
+
+2. Remove **all comments** from `sg.tf` file and run terrafrom apply
+
+```bash
+# Check for the Security group before terraform apply -var-file terraform.eks.tfvars
+aws ec2 describe-security-groups --profile devopsinuse --region eu-central-1 | jq '.SecurityGroups [].GroupName'
+"default"
+
+# apply sg.tf terrrafrom code
+terraform apply -var-file terraform.eks.tfvars
+ 
+# Check for the Security group after terraform apply -var-file terraform.eks.tfvars
+aws ec2 describe-security-groups --profile devopsinuse --region eu-central-1 | jq '.SecurityGroups [].GroupName'
+"EKSClusterNodeGroupSecurityGroup"
+"default"
+
+```
+
+3. Remove **comments from subnets.tf** file and run terrafrom apply ...
+
+```bash
+# Check for the extra Subnets before terraform apply -var-file terraform.eks.tfvars
+aws ec2 describe-subnets --profile devopsinuse --region eu-central-1 | jq '.Subnets [].SubnetId'
+"subnet-1f3cc963"
+"subnet-ca01f986"
+"subnet-9b75cbf1"
+
+# apply subnets.tf terrrafrom code
+terraform apply -var-file terraform.eks.tfvars
+ 
+# Check for the extra Subnets before terraform apply -var-file terraform.eks.tfvars
+aws ec2 describe-subnets --profile devopsinuse --region eu-central-1 | jq '.Subnets [].SubnetId'
+"subnet-064d6205839537b7b"
+"subnet-06aab122584ff2903"
+"subnet-1f3cc963"
+"subnet-092c8c9af4f4501e6"
+"subnet-ca01f986"
+"subnet-9b75cbf1"
+```
+
+4. Remove **comments from main.tf** file and correcponding section for **AWS EKS cluster**
+
+```bash
+# Check whether you got any AWS EKS cluster before you gonna run terrafrom apply ...
+aws eks list-clusters --profile devopsinuse --region eu-central-1
+{
+    "clusters": []
+}
+
+# apply main.tf terrrafrom code for AWS EKS cluster
+terraform apply -var-file terraform.eks.tfvars
+
+# Check whether you got any AWS EKS cluster after you gonna run terrafrom apply ...
+aws eks list-clusters --profile devopsinuse --region eu-central-1
+{
+    "clusters": [
+        "diu-eks-cluster"
+    ]
+}
+
+```
+
+5. Remove **comments from main.tf** file and terrafrom section for **AWS EKS Node Group**
+
+```bash
+# Check whether you got any AWS EKS node group before you gonna run terrafrom apply ...
+aws eks list-nodegroups --cluster-name diu-eks-cluster --profile devopsinuse --region eu-central-1
+{
+    "nodegroups": []
+}
+
+# apply main.tf terrrafrom code for AWS EKS cluster
+terraform apply -var-file terraform.eks.tfvars
+
+# Check whether you got any AWS EKS node group after you gonna run terrafrom apply ...
+aws eks list-nodegroups --cluster-name diu-eks-cluster --profile devopsinuse --region eu-central-1
+{
+    "nodegroups": [
+        "diu-eks-cluster-node-group"
+    ]
+}
+
+
+# List EC2 instances within AGS belonging to AWS EKS node group
+aws ec2 describe-instances --filters Name=instance-type,Values=t3.micro --profile devopsinuse --region eu-central-1 | jq '.Reservations [].Instances [].Tags'
+[
+  {
+    "Key": "aws:autoscaling:groupName",
+    "Value": "eks-dcb90a4c-5373-6ef1-67cf-9706e0bb913b"
+  },
+  ...
+  ...
+  {
+    "Value": "1"
+  }
+]
+
+
+# retrive ASG, Lunch template, ...
+aws autoscaling describe-auto-scaling-groups --profile devopsinuse --region eu-central-1 | jq '(.AutoScalingGroups [].AutoScalingGroupName), (.AutoScalingGroups [].LaunchTemplate)'
+"eks-dcb90a4c-5373-6ef1-67cf-9706e0bb913b"
+{
+  "LaunchTemplateId": "lt-0f98da1f10a5bf8e7",
+  "LaunchTemplateName": "eks-dcb90a4c-5373-6ef1-67cf-9706e0bb913b",
+  "Version": "1"
+}
+
+
+# List AWS ENI Network Interfaces
+aws ec2 describe-network-interfaces  --profile devopsinuse --region eu-central-1 | jq '(.NetworkInterfaces [].Description), (.NetworkInterfaces [].NetworkInterfaceId)'
+"aws-K8S-i-044c234e0f9b30818"
+"Amazon EKS diu-eks-cluster"
+""
+"aws-K8S-i-08d8fcb2bf3d16b54"
+""
+"Amazon EKS diu-eks-cluster"
+"eni-0b82e1be272606a79"
+"eni-0f6bcf69497705f5a"
+"eni-0c8a4d31f6ae0a841"
+"eni-06a9cc7fdfcb57b43"
+"eni-03e6ba9d77782d502"
+"eni-0a44e20c8afc8badc"
+
+```
+
+**On Amazon Elastic Kubernetes Service (EKS)**, 
+the maximum number of pods per node depends on the node type and ranges from 4 to 737.
+
+*Pod number mapping*: https://github.com/awslabs/amazon-eks-ami/blob/master/files/eni-max-pods.txt
+
+**On Google Kubernetes Engine (GKE)**, 
+the limit is 100 pods per node, regardless of the type of node.
+
+**On Azure Kubernetes Service (AKS)**, 
+the default limit is 30 pods per node but it can be increased up to 250.
+
+
+Configure your `~/.kube/config` file to be able to communicate to your **AWS EKS Kubernetes cluster**
+
+```bash
+# run this command:
+aws eks --region eu-central-1 update-kubeconfig --name diu-eks-cluster --profile devopsinuse
+```
+
+Terrafrom destroy AWS EKS cluster and all the other resources
+```bash
+terraform destroy -var-file terraform.eks.tfvars       
+data.aws_availability_zones.default: Refreshing state...
+aws_key_pair.this: Refreshing state... [id=aws-eks-ssh-key]
 
 ...
 ...
-aws_eks_node_group.this: Destruction complete after 7m16s
-aws_key_pair.this: Destruction complete after 1s
-aws_security_group.eks_cluster_node_group: Destruction complete after 1s
-aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEC2ContainerRegistryReadOnly: Destruction complete after 1s
-aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKS_CNI_Policy: Destruction complete after 1s
-aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKSWorkerNodePolicy: Destruction complete after 1s
-aws_iam_role.diu-eks-cluster-node-group: Destruction complete after 2s
-aws_eks_cluster.this: Destruction complete after 9m20s
-aws_subnet.this[0]: Destruction complete after 1s
-aws_subnet.this[1]: Destruction complete after 1s
-aws_subnet.this[2]: Destruction complete after 1s
-aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSClusterPolicy: Destruction complete after 1s
-aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSServicePolicy: Destruction complete after 1s
-aws_iam_role.diu-eks-cluster: Destruction complete after 1s
 
-...
-...
-Destroy complete! Resources: 14 destroyed.
+apsed]
+aws_eks_node_group.this: Still destroying... [id=diu-eks-cluster:diu-eks-cluster-node-group, 3m0s elapsed]
+aws_eks_node_group.this: Still destroying... [id=diu-eks-cluster:diu-eks-cluster-node-group, 3m10s elapsed]
+aws_eks_node_group.this: Still destroying... [id=diu-eks-cluster:diu-eks-cluster-node-group, 3m20s elapsed]
+
+Error: error waiting for EKS Node Group (diu-eks-cluster:diu-eks-cluster-node-group) deletion: Ec2SecurityGroupDeletionFailure: DependencyViolation - resource has a dependent object. Resource IDs: [sg-0647cbc6b8a83da15]
+
 ```
 
 
+![](img/sg-problem-1.png)
+
+![](img/sg-problem-2.png)
+
+![](img/sg-problem-3.png)
+
+![](img/sg-problem-4.png)
+
+![](img/sg-problem-5.png)
+
+**Now** Terrafrom destroy AWS EKS cluster will **work**
+```bash
+terraform destroy -var-file terraform.eks.tfvars
+```
 
 
 <br/>

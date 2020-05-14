@@ -6,7 +6,7 @@ core/.terraform
 eks-terraform/terraform.eks.tfvars
 eks-terraform/terraform.tfstate
 eks-terraform/terraform.tfstate.backup
-
+eks-terraform/terraform.tfstate.incremental
 
 # Local .terraform directories
 **/.terraform/*
