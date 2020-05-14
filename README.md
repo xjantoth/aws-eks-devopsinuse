@@ -1810,7 +1810,7 @@ root@nginx-656bf99f5d-4pjgt:/#
 <!-- - [31. Executing terrafrom destroy will not work when terrafrom run incrementaly](#31-executing-terrafrom-destroy-will-not-work-when-terrafrom-run-incrementaly)-->
 ### 31. Executing terrafrom destroy will not work when terrafrom run incrementaly
 
-
+![](img/terraform-4.png)
 **Run** `terraform destroy  -var-file terraform.eks.tfvars` command to **delete all prevoiusly** created AWS resources
 ```bash
 terraform destroy  -var-file terraform.eks.tfvars
