@@ -1831,7 +1831,9 @@ ls  ~/.ssh/eks-aws.pub
 ```
 
   - **Make** sure that terraform.eks.tfvars file is configured correctlly
-and remeber that at this point **most of the terrafrom code** has comments - effectively it will not be take into an account
+and remeber that at this point **most of the terrafrom code** has comments - effectively it will not be take into an account `# sed -i 's/^/#/' iam.tf outputs.tf sg.tf subnets.tf`
+
+
 ```bash
 terraform init
 terraform validate
@@ -1850,6 +1852,8 @@ aws iam list-roles --profile devopsinuse --region eu-central-1 | jq '.Roles [].R
 "AWSServiceRoleForTrustedAdvisor"
 
 # Create 2 IAM AWS Roles and make sure htat you uncommented iam.tf file
+sed -i 's/^#//' iam.tf # removes comments from file
+terraform validate
 terraform apply -var-file terraform.eks.tfvars
 
 # if there is no any issue 2 IAM AWS Roles will be created
@@ -1871,6 +1875,8 @@ aws ec2 describe-security-groups --profile devopsinuse --region eu-central-1 | j
 "default"
 
 # apply sg.tf terrrafrom code
+sed  's/^#//' -i sg.tf
+terraform validate
 terraform apply -var-file terraform.eks.tfvars
  
 # Check for the Security group after terraform apply -var-file terraform.eks.tfvars
@@ -1890,6 +1896,8 @@ aws ec2 describe-subnets --profile devopsinuse --region eu-central-1 | jq '.Subn
 "subnet-9b75cbf1"
 
 # apply subnets.tf terrrafrom code
+sed  's/^#//' -i subnets.tf
+terraform validate
 terraform apply -var-file terraform.eks.tfvars
  
 # Check for the extra Subnets before terraform apply -var-file terraform.eks.tfvars
@@ -1912,6 +1920,8 @@ aws eks list-clusters --profile devopsinuse --region eu-central-1
 }
 
 # apply main.tf terrrafrom code for AWS EKS cluster
+sed -e '/^.*EKS_CLUSTER_START.*/,/^.*EKS_CLUSTER_END.*/s/^#//' -i main.tf
+terraform validate
 terraform apply -var-file terraform.eks.tfvars
 
 # Check whether you got any AWS EKS cluster after you gonna run terrafrom apply ...
@@ -1934,6 +1944,8 @@ aws eks list-nodegroups --cluster-name diu-eks-cluster --profile devopsinuse --r
 }
 
 # apply main.tf terrrafrom code for AWS EKS cluster
+sed -e '/^.*EKS_NODE_GROUP_START.*/,/^.*EKS_NODE_GROUP_END.*/s/^#//' -i main.tf
+terraform validate
 terraform apply -var-file terraform.eks.tfvars
 
 # Check whether you got any AWS EKS node group after you gonna run terrafrom apply ...
@@ -2006,6 +2018,27 @@ Configure your `~/.kube/config` file to be able to communicate to your **AWS EKS
 aws eks --region eu-central-1 update-kubeconfig --name diu-eks-cluster --profile devopsinuse
 ```
 
+Examine a quick **deployment**:
+
+```bash
+kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml
+kubectl scale --replicas=2 deployment nginx-deployment
+kubectl expose deployment nginx-deployment --port=80 --target-port=80
+
+kubectl exec -it nginx-deployment-574b87c764-hjtcm -- sed -i 's/Welcome to nginx/Hello from Kubernetes at port 30111/'  /usr/share/nginx/html/index.html
+
+kubectl get nodes -o wide | awk -F" " '{print $1"\t"$7}'        
+NAME    EXTERNAL-IP
+ip-172-31-100-208.eu-central-1.compute.internal 18.195.216.59
+ip-172-31-102-105.eu-central-1.compute.internal 3.120.228.32
+```
+![](img/sg-problem-7.png)
+
+![](img/sg-problem-6.png)
+
+
+
+
 Terrafrom destroy AWS EKS cluster and all the other resources
 ```bash
 terraform destroy -var-file terraform.eks.tfvars       
@@ -2024,6 +2057,11 @@ Error: error waiting for EKS Node Group (diu-eks-cluster:diu-eks-cluster-node-gr
 
 ```
 
+**Delete problematic AWS ENI** interface for **eks-remoteAccess-XYZ** Security Group and corresponfing **eni-111111111111**
+
+```bash
+aws ec2 delete-network-interface --network-interface-id eni-0096ccb8555c18958 --profile devopsinuse --region eu-central-1
+```
 
 ![](img/sg-problem-1.png)
 
@@ -2034,6 +2072,9 @@ Error: error waiting for EKS Node Group (diu-eks-cluster:diu-eks-cluster-node-gr
 ![](img/sg-problem-4.png)
 
 ![](img/sg-problem-5.png)
+
+
+
 
 **Now** Terrafrom destroy AWS EKS cluster will **work**
 ```bash
