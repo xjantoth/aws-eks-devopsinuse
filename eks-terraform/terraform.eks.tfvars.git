@@ -9,3 +9,5 @@ custom_tags = {
 }
 
 eks-cluster-name = "diu-eks-cluster"
+kubernetes-version = "1.16"
+

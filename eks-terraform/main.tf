@@ -25,7 +25,7 @@ data "aws_availability_zones" "default" {
 resource "aws_eks_cluster" "this" {
   name     = var.eks-cluster-name
   role_arn = aws_iam_role.diu-eks-cluster.arn
-  version  = "1.16"
+  version  = var.kubernetes-version
 
   vpc_config {
     # subnet_ids = ["${aws_subnet.example1.id}", "${aws_subnet.example2.id}"]
@@ -77,7 +77,7 @@ resource "aws_eks_node_group" "this" {
 
   remote_access {
     ec2_ssh_key               = aws_key_pair.this.key_name
-    # source_security_group_ids = list(aws_security_group.eks_cluster_node_group.id)
+    source_security_group_ids = list(aws_security_group.eks_cluster_node_group.id)
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
@@ -96,8 +96,7 @@ resource "aws_eks_node_group" "this" {
 
 # Uncomment to create Security Group rule for Kubernetes SSH port 22, NodePort 30111 - start
 locals {
-  #tcp_ports = ["22", "30111"]
-  tcp_ports = ["30111"]
+  tcp_ports = ["22", "30111"]
 }
 
 resource "aws_security_group_rule" "this" {

@@ -26,3 +26,8 @@ variable "eks-cluster-name" {
   description = "AWS EKS cluster name"
   type        = string
 }
+
+variable "kubernetes-version" {
+  description = "AWS EKS cluster Kubernetes version"
+  type        = string
+}
