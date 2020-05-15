@@ -16,6 +16,7 @@ data "aws_availability_zones" "default" {
   state = "available"
 }
 
+# EKS_CLUSTER_START
 # ---------------------------------------------------------------------
 #      Kubernetes AWS EKS cluster (Kubernetes control plane)
 # ---------------------------------------------------------------------
@@ -42,8 +43,10 @@ resource "aws_eks_cluster" "this" {
 
 
 # Uncomment to create AWS EKS cluster (Kubernetes control plane) - start
+# EKS_CLUSTER_END
 
 
+# EKS_NODE_GROUP_START
 ## ---------------------------------------------------------------------
 ##      Kubernetes AWS EKS node group (Kubernetes nodes)
 ## ---------------------------------------------------------------------
@@ -58,7 +61,7 @@ resource "aws_key_pair" "this" {
 
 # Uncomment to create AWS EKS cluster - node group - start
 resource "aws_eks_node_group" "this" {
-  cluster_name    = var.eks-cluster-name
+  cluster_name    = aws_eks_cluster.this.name
   node_group_name = "${var.eks-cluster-name}-node-group"
   node_role_arn   = aws_iam_role.diu-eks-cluster-node-group.arn
   subnet_ids      = [for subnet in [for value in aws_subnet.this : value] : subnet.id]
@@ -74,15 +77,15 @@ resource "aws_eks_node_group" "this" {
 
   remote_access {
     ec2_ssh_key               = aws_key_pair.this.key_name
-    source_security_group_ids = list(aws_security_group.eks_cluster_node_group.id)
+    # source_security_group_ids = list(aws_security_group.eks_cluster_node_group.id)
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
   depends_on = [
-    aws_eks_cluster.this,
-    aws_key_pair.this,
-    aws_security_group.eks_cluster_node_group,
+    # aws_eks_cluster.this,
+    # aws_key_pair.this,
+    # aws_security_group.eks_cluster_node_group,
     aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.diu-eks-cluster-node-group-AmazonEC2ContainerRegistryReadOnly,
@@ -93,7 +96,8 @@ resource "aws_eks_node_group" "this" {
 
 # Uncomment to create Security Group rule for Kubernetes SSH port 22, NodePort 30111 - start
 locals {
-  tcp_ports = ["22", "30111"]
+  #tcp_ports = ["22", "30111"]
+  tcp_ports = ["30111"]
 }
 
 resource "aws_security_group_rule" "this" {
@@ -112,3 +116,4 @@ resource "aws_security_group_rule" "this" {
   ]
 }
 ## Uncomment to create Security Group rule for Kubernetes NodePort 30111 - start
+# EKS_NODE_GROUP_END
