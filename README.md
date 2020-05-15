@@ -2038,6 +2038,20 @@ Error: error waiting for EKS Node Group (diu-eks-cluster:diu-eks-cluster-node-gr
 **Now** Terrafrom destroy AWS EKS cluster will **work**
 ```bash
 terraform destroy -var-file terraform.eks.tfvars
+
+...
+aws_subnet.this[0]: Destroying... [id=subnet-064d6205839537b7b]
+aws_subnet.this[2]: Destroying... [id=subnet-092c8c9af4f4501e6]
+aws_subnet.this[1]: Destroying... [id=subnet-06aab122584ff2903]
+aws_subnet.this[2]: Destruction complete after 1s
+aws_subnet.this[1]: Destruction complete after 1s
+aws_subnet.this[0]: Destruction complete after 1s
+aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSClusterPolicy: Destruction complete after 1s
+aws_iam_role_policy_attachment.diu-eks-cluster-AmazonEKSServicePolicy: Destruction complete after 1s
+aws_iam_role.diu-eks-cluster: Destroying... [id=diu-EksClusterIAMRole-tf]
+aws_iam_role.diu-eks-cluster: Destruction complete after 2s
+
+Destroy complete! Resources: 14 destroyed.
 ```
 
 
