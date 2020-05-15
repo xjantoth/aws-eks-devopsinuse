@@ -1831,7 +1831,7 @@ ls  ~/.ssh/eks-aws.pub
 ```
 
   - **Make** sure that terraform.eks.tfvars file is configured correctlly
-and remeber that at this point **most of the terrafrom code** has comments - effectively it will not be take into an account `# sed -i 's/^/#/' iam.tf outputs.tf sg.tf subnets.tf`
+and remeber that at this point **most of the terrafrom code** has comments - effectively it will not be take into an account `# sed -i 's/^/#/' iam.tf outputs.tf sg.tf subnets.tf`  and `sed -i '/^.*EKS_CLUSTER_START.*/,/^.*EKS_NODE_GROUP_END.*/s/^/#/' main.tf`
 
 
 ```bash
