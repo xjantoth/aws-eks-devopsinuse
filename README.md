@@ -34,7 +34,7 @@
  - [29. Explore terrafrom console command](#29-explore-terrafrom-console-command)
  - [30. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#30-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)
  - [31. Executing terrafrom destroy will not work when terrafrom run incrementaly](#31-executing-terrafrom-destroy-will-not-work-when-terrafrom-run-incrementaly)
-
+ - [32. Provison and destroy AWS EKS Kubernetes cluster with terrafrom](#32-provison-and-destroy-aws-eks-kubernetes-cluster-with-terrafrom)
 
 
 
@@ -2094,6 +2094,69 @@ aws_iam_role.diu-eks-cluster: Destruction complete after 2s
 
 Destroy complete! Resources: 14 destroyed.
 ```
+
+<!-- - [32. Provison and destroy AWS EKS Kubernetes cluster with terrafrom](#32-provison-and-destroy-aws-eks-kubernetes-cluster-with-terrafrom)-->
+### 32. Provison and destroy AWS EKS Kubernetes cluster with terrafrom
+
+* **git clone** https://github.com/xjantoth/aws-eks-devopsinuse.git
+* **uncomment** all files from `eks-terraform/` folder at once:
+  - `sed  's/^#//' -i iam.tf`          
+  - `sed  's/^#//' -i sg.tf`          
+  - `sed  's/^#//' -i subnets.tf`     
+  - `sed -e '/^.*EKS_CLUSTER_START.*/,/^.*EKS_CLUSTER_END.*/s/^#//' -i main.tf`
+  - `sed -e '/^.*EKS_NODE_GROUP_START.*/,/^.*EKS_NODE_GROUP_END.*/s/^#//' -i main.tf`
+  - variables.tf  (this file is uncommented all the time)
+  - outputs.tf    (does not really matter whether it's uncommented or not)
+<br/>
+<br/>
+* **fill up all** the lines in `terraform.eks.tfvars` file
+  - `echo "" > ~/.kube/config && cat ~/.kube/config`
+  - `cd eks-terraform`
+  - `rm terraform.tfstate.backup terraform.tfstate .terraform -rf`
+  - `ls  ~/.ssh/eks-aws.pub`
+  - `terraform init`
+  - `terraform validate`
+  - `terraform fmt -recursive`
+
+
+![](img/terraform-5.png)
+
+**Provision** your AWS EKS Kubernetes cluster with all the required AWS resources by executing **one command**
+```bash
+terraform apply -var-file terraform.eks.tfvars
+```
+
+**Setup** correct  **kubeconfig** file:
+```bash
+aws eks --region eu-central-1 update-kubeconfig --name diu-eks-cluster
+```
+
+Go through a quick **kubernetes deployment** to verify your AWS EKS cluster:
+
+```bash
+kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml
+kubectl scale --replicas=2 deployment nginx-deployment
+kubectl expose deployment nginx-deployment --port=80 --target-port=80
+
+kubectl exec -it nginx-deployment-574b87c764-hjtcm -- sed -i 's/Welcome to nginx/Hello from K8s: terraform apply -var-file terraform.eks.tfvars/'  /usr/share/nginx/html/index.html
+
+# edit Kubenretes service on the fly
+# set service type: NodePort and nodePort: 30111
+EDITOR=vim kubectl edit svc nginx-deployment
+
+
+kubectl get nodes -o wide | awk -F" " '{print $1"\t"$7}'
+NAME    EXTERNAL-IP
+ip-172-31-100-208.eu-central-1.compute.internal 18.195.216.59
+ip-172-31-102-105.eu-central-1.compute.internal 3.120.228.32
+```
+
+
+**Destroy / get rid of** your **AWS EKS Kubernetes cluster** with all **the required AWS resources** by *executing* **one command**
+```bash
+terraform destroy -var-file terraform.eks.tfvars
+```
+
 
 
 <br/>
