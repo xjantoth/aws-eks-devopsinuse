@@ -2107,16 +2107,18 @@ Destroy complete! Resources: 14 destroyed.
   - `sed -e '/^.*EKS_NODE_GROUP_START.*/,/^.*EKS_NODE_GROUP_END.*/s/^#//' -i main.tf`
   - variables.tf  (this file is uncommented all the time)
   - outputs.tf    (does not really matter whether it's uncommented or not)
-<br/>
-<br/>
+
 * **fill up all** the lines in `terraform.eks.tfvars` file
-  - `echo "" > ~/.kube/config && cat ~/.kube/config`
-  - `cd eks-terraform`
-  - `rm terraform.tfstate.backup terraform.tfstate .terraform -rf`
-  - `ls  ~/.ssh/eks-aws.pub`
-  - `terraform init`
-  - `terraform validate`
-  - `terraform fmt -recursive`
+
+```bash
+echo "" > ~/.kube/config && cat ~/.kube/config
+cd eks-terraform
+rm terraform.tfstate.backup terraform.tfstate .terraform -rf
+ls  ~/.ssh/eks-aws.pub
+terraform init
+terraform validate
+terraform fmt -recursive
+```
 
 
 ![](img/terraform-5.png)
