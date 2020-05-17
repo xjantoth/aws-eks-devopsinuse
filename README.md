@@ -2160,28 +2160,43 @@ terraform destroy -var-file terraform.eks.tfvars
 ```
 
 
-
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-<br/>
-
 3. Helm charts
-### 31. Install helm v3 and helmfile binaries
-### 32. Create your own NGINX helm chart
-### 33. Deploy NGINX helm chart via helm v3
-### 34. Deploy PostgreSQL helm chart from stable helm chart repository
-### 35. Self written micro backend helm chart
-### 36. Self written micro frontend helm chart
-### 37. Nginx ingress controller helm chart
-### 38. Creating own helm chart repository from Github account
-### 38. Creating own helm chart repository from Chartmuseum
+
+### 33. Desired Infrastracture with helm charts
+
+![](img/nginx-2.png)
+
+
+```bash
+docker run \
+--rm --name micro-postgres \
+-e POSTGRES_USER=postgres \
+-e POSTGRES_PASSWORD=password \
+-p 5432:5432 \
+-d postgres:alpine
+
+psql --host=localhost --port=5432 -U postgres # password
+
+CREATE DATABASE  microservice;
+CREATE USER micro WITH ENCRYPTED PASSWORD 'password'; 
+GRANT ALL PRIVILEGES ON DATABASE microservice TO micro;
+ALTER DATABASE microservice OWNER TO micro;
+
+
+
+
+```
+
+
+### 34. Install helm v3 and helmfile binaries
+### 35. Create your own NGINX helm chart
+### 36. Deploy NGINX helm chart via helm v3
+### 37. Deploy PostgreSQL helm chart from stable helm chart repository
+### 38. Self written micro backend helm chart
+### 39. Self written micro frontend helm chart
+### 40. Nginx ingress controller helm chart
+### 41. Creating own helm chart repository from Github account
+### 41. Creating own helm chart repository from Chartmuseum
 
 
 

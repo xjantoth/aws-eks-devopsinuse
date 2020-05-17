@@ -43,4 +43,8 @@ override.tf.json
 terraform.rc
 
 
-
+**/__init__.py
+**/__pycache__ 
+**/backend/venv_micro 
+backend/.vscode/settings.json
+frontend/node_modules
