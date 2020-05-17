@@ -3,8 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from src.resources import (
-    IPAddressClass,
-)
+    IPAddressClass, )
 from src.config import POSTGRES
 
 app = Flask(__name__)
@@ -15,9 +14,11 @@ app.logger.addHandler(stream_handler)
 
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = 'postgresql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PROPAGATE_EXCEPTIONS'] = True # To allow flask
+app.config['PROPAGATE_EXCEPTIONS'] = True  # To allow flask
+
 
 @app.before_first_request
 def create_tables():
@@ -31,6 +32,7 @@ def create_tables():
     with app.app_context():
         db.init_app(app)
         db.create_all()
+
 
 api = Api(app)
 api.add_resource(IPAddressClass, '/api/ipaddress')

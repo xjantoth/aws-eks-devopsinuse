@@ -8,10 +8,9 @@ class IPAddress(db.Model):
     __tablename__ = 'ip_address'
 
     id = db.Column(db.Integer, primary_key=True)
-    created = db.Column(
-        db.DateTime,
-        default=datetime.datetime.now(pytz.timezone("America/New_York"))
-        )
+    created = db.Column(db.DateTime,
+                        default=datetime.datetime.now(
+                            pytz.timezone("America/New_York")))
     ipaddress = db.Column(db.String)
 
     def __init__(self, ipaddress, created):
@@ -38,7 +37,7 @@ class IPAddress(db.Model):
         db.session.add(self)
         db.session.commit()
         return self.json()
-            
+
     @classmethod
     def find_address_by_id(cls, id):
         """
@@ -55,6 +54,3 @@ class IPAddress(db.Model):
         :return:
         """
         return cls.query.all()
-        
-
-
