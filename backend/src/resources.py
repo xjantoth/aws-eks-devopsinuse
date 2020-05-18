@@ -7,6 +7,23 @@ from flask_restful import Resource, request
 from src.models import IPAddress
 
 
+class HealthClass(Resource):
+    """
+    This is the API checks backend connectivity to database.
+    """
+    def get(self):
+        """Connects to PostgreSQL database"""
+        try:
+            IPAddress.list()
+            return {
+                "msg": "Dummy database connectivity check.",
+                "message": True,
+            }, 200
+
+        except Exception as e:
+            return {"msg": f"Cloud not load data from database: {e}"}, 500
+
+
 class IPAddressClass(Resource):
     """
     This is the API which will grab the IP address from running

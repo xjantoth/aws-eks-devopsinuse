@@ -27,13 +27,13 @@ class App extends Component {
   }
 
   fetchData = () => {
-    axios.get('http://127.0.0.1:5000/api/ipaddress').then(
+    axios.get('http://backend/api/ipaddress').then(
       res => this.setState({ addresses: res.data })
     ).catch(error => {
       console.log('GET all ipaddresses:' + error)
     });
 
-    axios.get('http://127.0.0.1:5000/api/isalive').then(
+    axios.get('http://backend/api/health').then(
       res => this.setState({ isalive: res.data })
     ).catch(error => {
       console.log('Error:' + error)
@@ -47,7 +47,7 @@ class App extends Component {
 
     console.log("Save IP address was hit!: ");
 
-    axios.post('http://127.0.0.1:5000/api/ipaddress').then(
+    axios.post('http://backend/api/ipaddress').then(
       res => this.setState({ saveToBackend: res.data }, this.fetchData)
     ).catch(error => {
       console.log('saveToBackend:' + error)

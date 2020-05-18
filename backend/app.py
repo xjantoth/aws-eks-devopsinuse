@@ -3,7 +3,9 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import Api
 from src.resources import (
-    IPAddressClass, )
+    IPAddressClass,
+    HealthClass,
+)
 from src.config import POSTGRES
 
 app = Flask(__name__)
@@ -36,7 +38,7 @@ def create_tables():
 
 api = Api(app)
 api.add_resource(IPAddressClass, '/api/ipaddress')
-# api.add_resource(IsAlive, '/api/isalive')
+api.add_resource(HealthClass, '/api/health')
 
 if __name__ == '__main__':
     app.run()

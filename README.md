@@ -35,7 +35,7 @@
  - [30. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#30-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)
  - [31. Executing terrafrom destroy will not work when terrafrom run incrementaly](#31-executing-terrafrom-destroy-will-not-work-when-terrafrom-run-incrementaly)
  - [32. Provison and destroy AWS EKS Kubernetes cluster with terrafrom](#32-provison-and-destroy-aws-eks-kubernetes-cluster-with-terrafrom)
-
+ - [33. Desired Infrastracture with helm charts](#33-desired-infrastracture-with-helm-charts)
 
 
 
@@ -2162,29 +2162,28 @@ terraform destroy -var-file terraform.eks.tfvars
 
 3. Helm charts
 
+<!-- - [33. Desired Infrastracture with helm charts](#33-desired-infrastracture-with-helm-charts)-->
 ### 33. Desired Infrastracture with helm charts
 
 ![](img/nginx-2.png)
 
+How to start up the whole setup all at once `docker-compose`:
+* nginx
+* front-end
+* back-end
+* postgresql
 
 ```bash
-docker run \
---rm --name micro-postgres \
--e POSTGRES_USER=postgres \
--e POSTGRES_PASSWORD=password \
--p 5432:5432 \
--d postgres:alpine
+git clone https://github.com/xjantoth/aws-eks-devopsinuse.git
+cd aws-eks-devopsinuse
+docker-compose  up --build
 
-psql --host=localhost --port=5432 -U postgres # password
-
-CREATE DATABASE  microservice;
-CREATE USER micro WITH ENCRYPTED PASSWORD 'password'; 
-GRANT ALL PRIVILEGES ON DATABASE microservice TO micro;
-ALTER DATABASE microservice OWNER TO micro;
-
-
-
-
+# Make sure that you have this line in /etc/hosts
+vim /etc/hosts
+...
+127.0.0.1 frontend,backend
+...
+:wq!
 ```
 
 

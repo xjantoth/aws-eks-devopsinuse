@@ -16,12 +16,12 @@ export class IpAddresses extends Component {
 
     return (
       <div>
-        <div className="tableDesc">Records from PostgreSQL:</div>
+        <div className="tableDesc">PostgreSQL IP Addresses records</div>
         <ReactTable className="reactTable"
           data={this.props.allAddress}
           columns={columns}
-          defaultPageSize={5}
-          pageSizeOptions={[5, 10, 30, 60, 100]}
+          defaultPageSize={10}
+          pageSizeOptions={[10, 15, 20, 50]}
         />
       </div>
     )
