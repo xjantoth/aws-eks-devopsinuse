@@ -1,59 +1,51 @@
+---
 version: '3'
-
 services:
   ingress:
     image: jwilder/nginx-proxy
     ports:
-      - "80:80"
+      - 80:80
     container_name: nginx
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-  # The front-end app in React
   frontend:
-    image: "jantoth/front-end:v1.0.0"
+    image: jantoth/front-end:v1.0.0
     depends_on:
       - backend
     build:
       context: ./frontend/
       dockerfile: Dockerfile
     ports:
-     - "3000:80"
+      - 3000:80
     container_name: front-end
     links:
-     - backend 
+      - backend
     environment:
-     - VIRTUAL_HOST=frontend
-    # docker run -it --rm --name  ft-react -p 3000:80 -d frontend:v0.0.1
-
-  # Python Flask backend app
+      - VIRTUAL_HOST=frontend
   backend:
-    image: "jantoth/back-end:v1.0.0"
+    image: jantoth/back-end:v1.0.0
     depends_on:
       - db
     build:
       context: ./backend/
-      dockerfile: Dockerfile    
+      dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - 8000:8000
     container_name: back-end
     environment:
-     - VIRTUAL_HOST=backend
-     - PSQL_DB_USER=micro
-     - PSQL_DB_PASS=password
-     - PSQL_DB_NAME=microservice
-     - PSQL_DB_ADDRESS=postgresql  # reference directly to "postgresql" container name
-     - PSQL_DB_PORT=5432
-
+      - VIRTUAL_HOST=backend
+      - PSQL_DB_USER=micro
+      - PSQL_DB_PASS=password
+      - PSQL_DB_NAME=microservice
+      - PSQL_DB_ADDRESS=postgresql
+      - PSQL_DB_PORT=5432
   db:
-    image: "postgres:alpine"
+    image: postgres:alpine
     ports:
-      - "5432:5432"
+      - 5432:5432
     container_name: postgresql
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     volumes:
       - ./db.sql:/docker-entrypoint-initdb.d/db.sql
-
-    
-# https://dev.to/englishcraig/creating-an-app-with-docker-compose-django-and-create-react-app-31lf

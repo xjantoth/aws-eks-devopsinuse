@@ -2186,23 +2186,91 @@ vim /etc/hosts
 :wq!
 ```
 
-
-### 34. Install helm v3 and helmfile binaries
-### 35. Create your own NGINX helm chart
-### 36. Deploy NGINX helm chart via helm v3
-### 37. Deploy PostgreSQL helm chart from stable helm chart repository
-### 38. Self written micro backend helm chart
-### 39. Self written micro frontend helm chart
-### 40. Nginx ingress controller helm chart
-### 41. Creating own helm chart repository from Github account
-### 41. Creating own helm chart repository from Chartmuseum
-
-
-
-### How to create KUBECONFIG for EKS cluster
+Create backend helm chart from scatch
 ```bash
-aws eks --region eu-central-1 update-kubeconfig --name diu-eks-cluster
+
+cd aws-eks-devopsinuse/backend/hc
+helm create backend
+
+# Adding custom description to Chart.yaml file
+sed -E -i 's'/\
+'^(description:).*'\
+'/'\
+'\1 Backend Flask app helmchart'\ 
+'/' \
+backend/Chart.yaml
+
+# Setting up "appVersion: 1.0.0" to some number
+sed -E -i 's/^(appVersion:).*/\1 1.0.0 /' \
+backend/Chart.yaml
+
+# Setting up "PostgreSQL" dependency
+sed  -i '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n'  backend/Chart.yaml
+
+# Downloads helm chart: "postgresql-3.18.3.tgz" to charts/ folder
+helm dependency update
+
+file  backend/charts/postgresql-3.18.3.tgz
+# backend/charts/postgresql-3.18.3.tgz: gzip compressed data, 
+# extra field, has comment, original size modulo 2^32 122880
+
+# untar "backend/charts/postgresql-3.18.3.tgz" to folder: backend/charts/
+tar xvzf   backend/charts/postgresql-3.18.3.tgz -C backend/charts
+
+# Remove tar ball "postgresql-3.18.3.tgz"
+rm backend/charts/postgresql-3.18.3.tgz
+
+sed -i.backup 's/apiVersion: apps\/v1beta2/apiVersion: apps\/v1/g' \
+backend/charts/postgresql/templates/statefulset.yaml \
+backend/charts/postgresql/templates/statefulset-slaves.yaml
+
+# Setup "jantoth\/back-end" in "backend/values.yaml" docker image 
+# to be used for this helm chart
+sed -E -i 's/^(.*repository:).*/\1 jantoth\/back-end/' backend/values.yaml
+
+Setup "containerPort" in file: "backend/templates/deployment.yaml"
+sed -E -i 's/^(.*containerPort:).*/\1 {{ .Values.image.containerPort }}/' \
+backend/templates/deployment.yaml
+
+# Setup "containerPort" in file: "backend/values.yaml"
+sed  -i '/^.*pullPolicy:.*/a \ \ containerPort: 8000' backend/values.yaml
+
+# Setup "containerPort" in file: "backend/templates/service.yaml" 
+sed -E -i  's/^(.*targetPort:).*/\1 {{ .Values.image.containerPort | default 80 }}/' backend/templates/service.yaml
+
+# Add "nodePort" in file: "backend/templates/service.yaml"
+sed  -i  '/^.*targetPort:.*/a \ \ \ \ {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}\n      nodePort: {{ .Values.service.nodePort }}\n    {{- end }}' backend/templates/service.yaml
+
+# Add "nodePort" in file: "backend/values.yaml"
+sed -i '/^.*port:.*/a \ \ nodePort:'  backend/values.yaml
+
+# Adjust kubernetes ingress object path specification
+sed -E -i 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' backend/values.yaml
+sed -E -i  's/^(.*annotations:).*/\1/' backend/values.yaml
+sed -i '/^.*annotations:.*/a \ \ \ \ nginx.ingress.kubernetes.io\/use-regex: "true"' \
+backend/values.yaml
+
+
+# Setup "livenessProbe" and "readinessProbe" in backend/templates/deployment.yaml
+sed -E  -i '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
+backend/templates/deployment.yaml
+
+sed -E  -i '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
+backend/templates/deployment.yaml
+
+sed -E -i '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.livenessProbe | default "\/" }}/' \
+backend/templates/deployment.yaml
+
+sed -E -i '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.readinessProbe | default "\/" }}/' \
+backend/templates/deployment.yaml
+
+sed -i '$a \\nlivenessProbe: \/api\/health' backend/values.yaml
+sed -i '$a \\nreadinessProbe: \/api\/health' backend/values.yaml
+
+
+highlight -S yaml <(helm template backend --show-only templates/ingress.yaml --set service.type=NodePort  --set service.nodePort=30111 --set image.containerPort=7 --set ingress.enabled=true backend)
 ```
+
 
 ### How to test cluster by running PostgreSQL deployment via helmfile
 
