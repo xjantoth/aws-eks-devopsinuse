@@ -2193,12 +2193,7 @@ cd aws-eks-devopsinuse/backend/hc
 helm create backend
 
 # Adding custom description to Chart.yaml file
-sed -E -i 's'/\
-'^(description:).*'\
-'/'\
-'\1 Backend Flask app helmchart'\ 
-'/' \
-backend/Chart.yaml
+sed -E -i 's/^(description:).*/\1 Backend Flask app helmchart/' backend/Chart.yaml
 
 # Setting up "appVersion: 1.0.0" to some number
 sed -E -i 's/^(appVersion:).*/\1 1.0.0 /' \
@@ -2208,7 +2203,7 @@ backend/Chart.yaml
 sed  -i '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n'  backend/Chart.yaml
 
 # Downloads helm chart: "postgresql-3.18.3.tgz" to charts/ folder
-helm dependency update
+cd backend && helm dependency update && cd ..
 
 file  backend/charts/postgresql-3.18.3.tgz
 # backend/charts/postgresql-3.18.3.tgz: gzip compressed data, 
