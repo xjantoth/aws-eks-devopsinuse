@@ -2230,11 +2230,11 @@ sed -E \
 -e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
 -e '/^.*pullPolicy:.*/a \ \ env:' \
 -e '/^.*pullPolicy:.*/a \ \ \ \ secret:' \
--e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_user: "micro"' \
--e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_pass: "password"' \
--e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_name: "microservice"' \
--e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_address: "backend-postgresql"' \
--e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_port: "5432"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ PSQL_DB_USER: "micro"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ PSQL_DB_PASS: "password"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ PSQL_DB_NAME: "microservice"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ PSQL_DB_ADDRESS: "backend-postgresql"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ PSQL_DB_PORT: "5432"' \
 -e '$a \\nlivenessProbe: \/api\/health' \
 -e '$a \\nreadinessProbe: \/api\/health' \
 -e 's/^(.*repository:).*/\1 jantoth\/back-end/' \
