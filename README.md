@@ -2190,7 +2190,7 @@ vim /etc/hosts
 
 ```bash
 # Creating "backend" helm chart
-cd aws-eks-devopsinuse/backend/hc
+cd backend/hc
 helm create backend
 
 # ------------------------------------------------------------------
@@ -2256,7 +2256,7 @@ sed -E \
 -e '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.readinessProbe | default "\/" }}/' \
 -e 's/^(.*containerPort:).*/\1 {{ .Values.image.containerPort }}/' \
 -e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ env:' \
--e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ {{- include "helpers.list-env-variables" . | indent 6 }}' \
+-e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ {{- include "helpers.list-env-variables" . | indent 10 }}' \
 -i backend/templates/deployment.yaml
 
 
@@ -2265,7 +2265,7 @@ cat <<'EOF' >>backend/templates/secret.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ include "backend.fullname" . }}
+  name: database-conection
 type: Opaque
 data:
   {{- range $key, $val := .Values.image.env.secret }}
@@ -2282,12 +2282,13 @@ Create the looper to define secret mounts as ENV variables
 */}}
 
 {{- define "helpers.list-env-variables"}}
-{{- range $key, $val := .Values.env.secret }}
+{{- range $key, $val := .Values.image.env.secret }}
 - name: {{ $key }}
   valueFrom:
     secretKeyRef:
-      name: app-env-secret
+      name: database-conection
       key: {{ $key }}
+{{- end}}
 {{- end}}
 EOF
 
