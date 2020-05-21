@@ -2186,44 +2186,66 @@ vim /etc/hosts
 :wq!
 ```
 
-Create backend helm chart from scatch
-```bash
+**Create** backend helm chart from scatch
 
+```bash
+# Creating "backend" helm chart
 cd aws-eks-devopsinuse/backend/hc
 helm create backend
 
-# Setting up "PostgreSQL" dependency
-sed  -i '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n'  backend/Chart.yaml
+# ------------------------------------------------------------------
+#     Setting up "backend" helm chart - START
+# ------------------------------------------------------------------
 
 # Downloads helm chart: "postgresql-3.18.3.tgz" to charts/ folder
 cd backend && helm dependency update && cd ..
 
-file  backend/charts/postgresql-3.18.3.tgz
-# backend/charts/postgresql-3.18.3.tgz: gzip compressed data, 
-# extra field, has comment, original size modulo 2^32 122880
-
-# untar "backend/charts/postgresql-3.18.3.tgz" to folder: backend/charts/
-tar xvzf   backend/charts/postgresql-3.18.3.tgz -C backend/charts
-
-# Remove tar ball "postgresql-3.18.3.tgz"
+# Untar "backend/charts/postgresql-3.18.3.tgz" to folder: backend/charts/
+# and remove tarball "backend/charts/postgresql-3.18.3.tgz"
+tar xvzf \
+backend/charts/postgresql-3.18.3.tgz \
+-C backend/charts && \
 rm backend/charts/postgresql-3.18.3.tgz
 
-sed -i.backup 's/apiVersion: apps\/v1beta2/apiVersion: apps\/v1/g' \
+# Fix API version for "StatefulSet" Kubernetes objects 
+sed -i 's/apiVersion: apps\/v1beta2/apiVersion: apps\/v1/g' \
 backend/charts/postgresql/templates/statefulset.yaml \
 backend/charts/postgresql/templates/statefulset-slaves.yaml
+
 
 # Adding custom description to Chart.yaml file
 sed -E \
 -e 's/^(description:).*/\1 Backend Flask app helmchart/' \
 -e 's/^(appVersion:).*/\1 v1.0.0 /' \
-backend/Chart.yaml
+-e '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n' \
+-i backend/Chart.yaml
+
+# Setting up "backend/values.yaml" file
+sed -E \
+-e '/^.*port:.*/a \ \ nodePort:' \
+-e 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' \
+-e 's/^(.*annotations:).*/\1/' \
+-e '/^.*annotations:.*/a \ \ \ \ nginx.ingress.kubernetes.io\/use-regex: "true"' \
+-e '/^.*pullPolicy:.*/a \ \ containerPort: 8000' \
+-e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
+-e '/^.*pullPolicy:.*/a \ \ env:' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ secret:' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_user: "micro"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_pass: "password"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_name: "microservice"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_address: "backend-postgresql"' \
+-e '/^.*pullPolicy:.*/a \ \ \ \ \ \ psql_db_port: "5432"' \
+-e '$a \\nlivenessProbe: \/api\/health' \
+-e '$a \\nreadinessProbe: \/api\/health' \
+-e 's/^(.*repository:).*/\1 jantoth\/back-end/' \
+-i backend/values.yaml
 
 
 # Setup "containerPort" in file: "backend/templates/service.yaml" 
 sed -E \
 -e 's/^(.*targetPort:).*/\1 {{ .Values.image.containerPort | default 80 }}/' \
 -e '/^.*targetPort:.*/a \ \ \ \ {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}\n      nodePort: {{ .Values.service.nodePort }}\n    {{- end }}' \
-backend/templates/service.yaml
+-i backend/templates/service.yaml
 
 
 # Setup "livenessProbe" and "readinessProbe" in backend/templates/deployment.yaml
@@ -2233,7 +2255,9 @@ sed -E \
 -e '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.livenessProbe | default "\/" }}/' \
 -e '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.readinessProbe | default "\/" }}/' \
 -e 's/^(.*containerPort:).*/\1 {{ .Values.image.containerPort }}/' \
-backend/templates/deployment.yaml
+-e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ env:' \
+-e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ {{- include "helpers.list-env-variables" . | indent 6 }}' \
+-i backend/templates/deployment.yaml
 
 
 # Creating file: "backend/templates/secret.yaml"
@@ -2243,32 +2267,35 @@ kind: Secret
 metadata:
   name: {{ include "backend.fullname" . }}
 type: Opaque
-stringData:
-  PSQL_DB_USER: {{ .Values.image.psql_db_user | default "micro" }}
-  PSQL_DB_PASS: {{ .Values.image.psql_db_pass | default "" }}
-  PSQL_DB_NAME: {{ .Values.image.psql_db_name | default "microservice" }}
-  PSQL_DB_ADDRESS: {{ .Values.image.psql_db_address | default "localhost" }}
-  PSQL_DB_PORT: {{ .Values.image.psql_db_port | default 5432 }}
+data:
+  {{- range $key, $val := .Values.image.env.secret }}
+  {{ $key }}: {{ $val | b64enc }}
+  {{- end}}
+
 EOF
 
-sed -E \
--e '/^.*port:.*/a \ \ nodePort:' \
--e 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' \
--e 's/^(.*annotations:).*/\1/' \
--e '/^.*annotations:.*/a \ \ \ \ nginx.ingress.kubernetes.io\/use-regex: "true"' \
--e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
--e '/^.*pullPolicy:.*/a \ \ psql_db_user:' \
--e '/^.*pullPolicy:.*/a \ \ psql_db_pass:' \
--e '/^.*pullPolicy:.*/a \ \ psql_db_name:' \
--e '/^.*pullPolicy:.*/a \ \ psql_db_address:' \
--e '/^.*pullPolicy:.*/a \ \ psql_db_port:' \
--e '$a \\nlivenessProbe: \/api\/health' \
--e '$a \\nreadinessProbe: \/api\/health' \
--e 's/^(.*repository:).*/\1 jantoth\/back-end/' \
--e '/^.*pullPolicy:.*/a \ \ containerPort: 8000' \
-backend/values.yaml
+# Enrich file: "backend/templates/_helpers.tpl"
+cat <<'EOF' >>backend/templates/_helpers.tpl
 
+{{/*
+Create the looper to define secret mounts as ENV variables
+*/}}
 
+{{- define "helpers.list-env-variables"}}
+{{- range $key, $val := .Values.env.secret }}
+- name: {{ $key }}
+  valueFrom:
+    secretKeyRef:
+      name: app-env-secret
+      key: {{ $key }}
+{{- end}}
+EOF
+
+# ------------------------------------------------------------------
+#     Setting up "backend" helm chart - END
+# ------------------------------------------------------------------
+
+# Little nice feature to make your work more colorful
 highlight -S yaml <(helm template backend --show-only templates/ingress.yaml --set service.type=NodePort  --set service.nodePort=30111 --set image.containerPort=7 --set ingress.enabled=true backend)
 ```
 
