@@ -2197,6 +2197,13 @@ helm create backend
 #     Setting up "backend" helm chart - START
 # ------------------------------------------------------------------
 
+# Adding custom description to Chart.yaml file
+sed -E \
+-e 's/^(description:).*/\1 Backend Flask app helmchart/' \
+-e 's/^(appVersion:).*/\1 v1.0.0 /' \
+-e '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n' \
+-i backend/Chart.yaml
+
 # Downloads helm chart: "postgresql-3.18.3.tgz" to charts/ folder
 cd backend && helm dependency update && cd ..
 
@@ -2212,13 +2219,6 @@ sed -i 's/apiVersion: apps\/v1beta2/apiVersion: apps\/v1/g' \
 backend/charts/postgresql/templates/statefulset.yaml \
 backend/charts/postgresql/templates/statefulset-slaves.yaml
 
-
-# Adding custom description to Chart.yaml file
-sed -E \
--e 's/^(description:).*/\1 Backend Flask app helmchart/' \
--e 's/^(appVersion:).*/\1 v1.0.0 /' \
--e '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n' \
--i backend/Chart.yaml
 
 # Setting up "backend/values.yaml" file
 sed -E \
