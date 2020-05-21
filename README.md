@@ -2240,6 +2240,35 @@ sed -E \
 -e 's/^(.*repository:).*/\1 jantoth\/back-end/' \
 -i backend/values.yaml
 
+cat <<'EOF' >>backend/values.yaml
+
+postgresql:
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: latest
+    debug: true
+
+  postgresqlUsername: postgres
+
+  postgresqlPassword: password
+
+  persistence:
+    enabled: false
+
+  pgHbaConfiguration: |
+    local all all trust
+    host all all localhost trust
+    host microservice micro 10.42.0.0/16 password
+
+  initdbScripts:
+    db-init.sql: |
+      CREATE DATABASE microservice;
+      CREATE USER micro WITH ENCRYPTED PASSWORD 'password';
+      GRANT ALL PRIVILEGES ON DATABASE microservice TO micro;
+      ALTER DATABASE microservice OWNER TO micro;
+
+EOF
 
 # Setup "containerPort" in file: "backend/templates/service.yaml" 
 sed -E \
