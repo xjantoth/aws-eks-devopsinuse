@@ -2192,13 +2192,6 @@ Create backend helm chart from scatch
 cd aws-eks-devopsinuse/backend/hc
 helm create backend
 
-# Adding custom description to Chart.yaml file
-sed -E -i 's/^(description:).*/\1 Backend Flask app helmchart/' backend/Chart.yaml
-
-# Setting up "appVersion: 1.0.0" to some number
-sed -E -i 's/^(appVersion:).*/\1 1.0.0 /' \
-backend/Chart.yaml
-
 # Setting up "PostgreSQL" dependency
 sed  -i '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n'  backend/Chart.yaml
 
@@ -2219,48 +2212,61 @@ sed -i.backup 's/apiVersion: apps\/v1beta2/apiVersion: apps\/v1/g' \
 backend/charts/postgresql/templates/statefulset.yaml \
 backend/charts/postgresql/templates/statefulset-slaves.yaml
 
-# Setup "jantoth\/back-end" in "backend/values.yaml" docker image 
-# to be used for this helm chart
-sed -E -i 's/^(.*repository:).*/\1 jantoth\/back-end/' backend/values.yaml
+# Adding custom description to Chart.yaml file
+sed -E \
+-e 's/^(description:).*/\1 Backend Flask app helmchart/' \
+-e 's/^(appVersion:).*/\1 v1.0.0 /' \
+backend/Chart.yaml
 
-Setup "containerPort" in file: "backend/templates/deployment.yaml"
-sed -E -i 's/^(.*containerPort:).*/\1 {{ .Values.image.containerPort }}/' \
-backend/templates/deployment.yaml
-
-# Setup "containerPort" in file: "backend/values.yaml"
-sed  -i '/^.*pullPolicy:.*/a \ \ containerPort: 8000' backend/values.yaml
 
 # Setup "containerPort" in file: "backend/templates/service.yaml" 
-sed -E -i  's/^(.*targetPort:).*/\1 {{ .Values.image.containerPort | default 80 }}/' backend/templates/service.yaml
-
-# Add "nodePort" in file: "backend/templates/service.yaml"
-sed  -i  '/^.*targetPort:.*/a \ \ \ \ {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}\n      nodePort: {{ .Values.service.nodePort }}\n    {{- end }}' backend/templates/service.yaml
-
-# Add "nodePort" in file: "backend/values.yaml"
-sed -i '/^.*port:.*/a \ \ nodePort:'  backend/values.yaml
-
-# Adjust kubernetes ingress object path specification
-sed -E -i 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' backend/values.yaml
-sed -E -i  's/^(.*annotations:).*/\1/' backend/values.yaml
-sed -i '/^.*annotations:.*/a \ \ \ \ nginx.ingress.kubernetes.io\/use-regex: "true"' \
-backend/values.yaml
+sed -E \
+-e 's/^(.*targetPort:).*/\1 {{ .Values.image.containerPort | default 80 }}/' \
+-e '/^.*targetPort:.*/a \ \ \ \ {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}\n      nodePort: {{ .Values.service.nodePort }}\n    {{- end }}' \
+backend/templates/service.yaml
 
 
 # Setup "livenessProbe" and "readinessProbe" in backend/templates/deployment.yaml
-sed -E  -i '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
+sed -E \
+-e '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
+-e '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
+-e '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.livenessProbe | default "\/" }}/' \
+-e '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.readinessProbe | default "\/" }}/' \
+-e 's/^(.*containerPort:).*/\1 {{ .Values.image.containerPort }}/' \
 backend/templates/deployment.yaml
 
-sed -E  -i '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
-backend/templates/deployment.yaml
 
-sed -E -i '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.livenessProbe | default "\/" }}/' \
-backend/templates/deployment.yaml
+# Creating file: "backend/templates/secret.yaml"
+cat <<'EOF' >>backend/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "backend.fullname" . }}
+type: Opaque
+stringData:
+  PSQL_DB_USER: {{ .Values.image.psql_db_user | default "micro" }}
+  PSQL_DB_PASS: {{ .Values.image.psql_db_pass | default "" }}
+  PSQL_DB_NAME: {{ .Values.image.psql_db_name | default "microservice" }}
+  PSQL_DB_ADDRESS: {{ .Values.image.psql_db_address | default "localhost" }}
+  PSQL_DB_PORT: {{ .Values.image.psql_db_port | default 5432 }}
+EOF
 
-sed -E -i '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.readinessProbe | default "\/" }}/' \
-backend/templates/deployment.yaml
-
-sed -i '$a \\nlivenessProbe: \/api\/health' backend/values.yaml
-sed -i '$a \\nreadinessProbe: \/api\/health' backend/values.yaml
+sed -E \
+-e '/^.*port:.*/a \ \ nodePort:' \
+-e 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' \
+-e 's/^(.*annotations:).*/\1/' \
+-e '/^.*annotations:.*/a \ \ \ \ nginx.ingress.kubernetes.io\/use-regex: "true"' \
+-e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
+-e '/^.*pullPolicy:.*/a \ \ psql_db_user:' \
+-e '/^.*pullPolicy:.*/a \ \ psql_db_pass:' \
+-e '/^.*pullPolicy:.*/a \ \ psql_db_name:' \
+-e '/^.*pullPolicy:.*/a \ \ psql_db_address:' \
+-e '/^.*pullPolicy:.*/a \ \ psql_db_port:' \
+-e '$a \\nlivenessProbe: \/api\/health' \
+-e '$a \\nreadinessProbe: \/api\/health' \
+-e 's/^(.*repository:).*/\1 jantoth\/back-end/' \
+-e '/^.*pullPolicy:.*/a \ \ containerPort: 8000' \
+backend/values.yaml
 
 
 highlight -S yaml <(helm template backend --show-only templates/ingress.yaml --set service.type=NodePort  --set service.nodePort=30111 --set image.containerPort=7 --set ingress.enabled=true backend)
