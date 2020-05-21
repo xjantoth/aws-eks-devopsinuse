@@ -2327,6 +2327,13 @@ EOF
 
 # Little nice feature to make your work more colorful
 highlight -S yaml <(helm template backend --show-only templates/ingress.yaml --set service.type=NodePort  --set service.nodePort=30111 --set image.containerPort=7 --set ingress.enabled=true backend)
+
+
+helm upgrade  backend \
+--set service.type=NodePort \
+--set service.nodePort=30777 \
+--set replicaCount=10  \
+backend/hc/backend
 ```
 
 

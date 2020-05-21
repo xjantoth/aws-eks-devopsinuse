@@ -48,3 +48,4 @@ terraform.rc
 **/backend/venv_micro 
 backend/.vscode/settings.json
 frontend/node_modules
+backend/hc/backend
