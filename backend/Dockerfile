@@ -17,7 +17,7 @@ WORKDIR /data
 
 ENTRYPOINT ["gunicorn"]
 
-CMD ["--bind", "0.0.0.0:8000", "app:app"]
+CMD ["--bind", "0.0.0.0:8000", "app:app", "--access-logfile", "/dev/stdout", "--error-logfile", "/dev/stdout", "--log-level", "DEBUG"]
 
 # cd backend/ && export FLASK_APP=app && flask run  # port 5000   
 # docker build -t <account>/microservice:v0.0.1 .

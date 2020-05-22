@@ -9,7 +9,7 @@ services:
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
   frontend:
-    image: jantoth/front-end:v1.0.0
+    image: docker.io/devopsinuse/front-end:v1.0.0
     depends_on:
       - backend
     build:
@@ -23,7 +23,7 @@ services:
     environment:
       - VIRTUAL_HOST=frontend
   backend:
-    image: jantoth/back-end:v1.0.0
+    image: docker.io/devopsinuse/back-end:v1.0.0
     depends_on:
       - db
     build:
