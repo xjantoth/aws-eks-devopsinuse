@@ -2225,7 +2225,7 @@ sed -E \
 -e '/^.*port:.*/a \ \ nodePort:' \
 -e 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' \
 -e 's/^(.*annotations:).*/\1/' \
--e '/^.*annotations:.*/a \ \ \ \ nginx.ingress.kubernetes.io\/use-regex: "true"' \
+-e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
 -e '/^.*pullPolicy:.*/a \ \ containerPort: 8000' \
 -e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
 -e '/^.*pullPolicy:.*/a \ \ env:' \
