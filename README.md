@@ -2226,6 +2226,7 @@ sed -E \
 -e 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' \
 -e 's/^(.*annotations:).*/\1/' \
 -e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
+-e '/^ingress.*/,/^\s*tls:.*/s/^(.*-\shost: )(.*)/\1 k8s-ingress-name/' \
 -e '/^.*pullPolicy:.*/a \ \ containerPort: 8000' \
 -e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
 -e '/^.*pullPolicy:.*/a \ \ env:' \
@@ -2338,6 +2339,7 @@ helm install backend \
 --set service.type=NodePort \
 --set service.nodePort=30777 \
 --set replicaCount=10  \
+--set ingress.enabled=true \
 backend/hc/backend
 
 # ------------------------------------------------------------------
@@ -2365,6 +2367,7 @@ sed -E \
 -e 's/^(.*paths:).*/\1 ["\/app\/\.*"]/' \
 -e 's/^(.*annotations:).*/\1/' \
 -e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
+-e '/^ingress.*/,/^\s*tls:.*/s/^(.*-\shost: )(.*)/\1 k8s-ingress-name/' \
 -e '/^.*pullPolicy:.*/a \ \ containerPort: 80' \
 -e '$a \\nlivenessProbe: \/app' \
 -e '$a \\nreadinessProbe: \/app' \
@@ -2403,8 +2406,9 @@ helm lint frontend
 helm install frontend \
 --set service.type=NodePort \
 --set service.nodePort=30222 \
---set replicaCount=1  \
-frontend/hc/frontend
+--set replicaCount=1 \
+--set ingress.enabled=true \
+frontend
 
 # ------------------------------------------------------------------
 #     Setting up "frontend" helm chart - END
