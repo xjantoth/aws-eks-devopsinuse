@@ -49,3 +49,4 @@ terraform.rc
 backend/.vscode/settings.json
 frontend/node_modules
 backend/hc/backend
+frontend/hc/frontend

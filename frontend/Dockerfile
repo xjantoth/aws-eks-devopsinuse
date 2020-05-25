@@ -2,7 +2,7 @@
 FROM node:12-stretch-slim  as react-build
 WORKDIR /app
 COPY . ./
-RUN npm i && npm run build
+RUN npm audit fix && npm i && npm run build
 
 
 # Stage 2 - the production environment
@@ -15,7 +15,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 
 # cd frontend
-# docker build -t <account>/frontend:v0.0.3 .
+# docker build -t <account>/frontend:v0.0.1 .
 
 # Run front-end React as docker container locally
 # docker run --rm --name ft -it -p 3001:80 -d <account>/frontend:v0.0.3

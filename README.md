@@ -1826,7 +1826,7 @@ echo "" > ~/.kube/config && cat ~/.kube/config
 cd eks-terraform
 rm terraform.tfstate.backup terraform.tfstate .terraform -rf
 ls  ~/.ssh/eks-aws.pub
-/home/jantoth/.ssh/eks-aws.pub: OpenSSH RSA public key
+/home/<username>/.ssh/eks-aws.pub: OpenSSH RSA public key
 
 ```
 
@@ -2237,7 +2237,7 @@ sed -E \
 -e '/^.*pullPolicy:.*/a \ \ \ \ \ \ PSQL_DB_PORT: "5432"' \
 -e '$a \\nlivenessProbe: \/api\/health' \
 -e '$a \\nreadinessProbe: \/api\/health' \
--e 's/^(.*repository:).*/\1 jantoth\/back-end/' \
+-e 's/^(.*repository:).*/\1 devopsinuse\/back-end/' \
 -i backend/values.yaml
 
 cat <<'EOF' >>backend/values.yaml
@@ -2321,21 +2321,95 @@ Create the looper to define secret mounts as ENV variables
 {{- end}}
 EOF
 
-# ------------------------------------------------------------------
-#     Setting up "backend" helm chart - END
-# ------------------------------------------------------------------
-
 # Little nice feature to make your work more colorful
-highlight -S yaml <(helm template backend --show-only templates/ingress.yaml --set service.type=NodePort  --set service.nodePort=30111 --set image.containerPort=7 --set ingress.enabled=true backend)
+highlight -S yaml <(helm template backend \
+--show-only templates/ingress.yaml \
+--set service.type=NodePort  \
+--set service.nodePort=30111 \
+--set image.containerPort=7 \
+--set ingress.enabled=true \
+backend)
 
+# Check for potential errors
+helm lint backend
 
-helm upgrade  backend \
+# Example how to deploy backend helmchart
+helm install backend \
 --set service.type=NodePort \
 --set service.nodePort=30777 \
 --set replicaCount=10  \
 backend/hc/backend
-```
 
+# ------------------------------------------------------------------
+#     Setting up "backend" helm chart - END
+# ------------------------------------------------------------------
+
+# ------------------------------------------------------------------
+#     Setting up "frontend" helm chart - START
+# ------------------------------------------------------------------
+
+# Creating "frontend" helm chart
+cd frontend/hc
+helm create frontend
+
+
+# Adding custom description to Chart.yaml file
+sed -E \
+-e 's/^(description:).*/\1 Frontend React app helmchart/' \
+-e 's/^(appVersion:).*/\1 v1.0.0 /' \
+-i frontend/Chart.yaml
+
+# Setting up "frontend/values.yaml" file
+sed -E \
+-e '/^.*port:.*/a \ \ nodePort:' \
+-e 's/^(.*paths:).*/\1 ["\/app\/\.*"]/' \
+-e 's/^(.*annotations:).*/\1/' \
+-e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
+-e '/^.*pullPolicy:.*/a \ \ containerPort: 80' \
+-e '$a \\nlivenessProbe: \/app' \
+-e '$a \\nreadinessProbe: \/app' \
+-e 's/^(.*repository:).*/\1 devopsinuse\/front-end/' \
+-i frontend/values.yaml
+
+# Setup "containerPort" in file: "frontend/templates/service.yaml" 
+sed -E \
+-e 's/^(.*targetPort:).*/\1 {{ .Values.image.containerPort | default 80 }}/' \
+-e '/^.*targetPort:.*/a \ \ \ \ {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}\n      nodePort: {{ .Values.service.nodePort }}\n    {{- end }}' \
+-i frontend/templates/service.yaml
+
+# Setup "livenessProbe" and "readinessProbe" in frontend/templates/deployment.yaml
+sed -E \
+-e '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
+-e '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
+-e '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.livenessProbe | default "\/" }}/' \
+-e '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.readinessProbe | default "\/" }}/' \
+-e 's/^(.*containerPort:).*/\1 {{ .Values.image.containerPort }}/' \
+-i frontend/templates/deployment.yaml
+
+
+# Little nice feature to make your work more colorful
+highlight -S yaml <(helm \
+template frontend \
+--show-only templates/deployment.yaml \
+--set service.type=NodePort \
+--set service.nodePort=30222 \
+--set image.containerPort=87 \
+--set ingress.enabled=true frontend)
+
+# Check for potential errors
+helm lint frontend
+
+# Example ho to deploy front-end helmchart
+helm install frontend \
+--set service.type=NodePort \
+--set service.nodePort=30222 \
+--set replicaCount=1  \
+frontend/hc/frontend
+
+# ------------------------------------------------------------------
+#     Setting up "frontend" helm chart - END
+# ------------------------------------------------------------------
+```
 
 ### How to test cluster by running PostgreSQL deployment via helmfile
 
