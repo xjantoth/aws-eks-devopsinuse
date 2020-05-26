@@ -2223,9 +2223,9 @@ backend/charts/postgresql/templates/statefulset-slaves.yaml
 # Setting up "backend/values.yaml" file
 sed -E \
 -e '/^.*port:.*/a \ \ nodePort:' \
--e 's/^(.*paths:).*/\1 ["\/api\/\.*"]/' \
--e 's/^(.*annotations:).*/\1/' \
--e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
+-e 's/^(.*paths:).*/\1 ["\/api"]/' \
+# -e 's/^(.*annotations:).*/\1/' \
+# -e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
 -e '/^ingress.*/,/^\s*tls:.*/s/^(.*-\shost: )(.*)/\1 k8s-ingress-name/' \
 -e '/^.*pullPolicy:.*/a \ \ containerPort: 8000' \
 -e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
@@ -2337,10 +2337,10 @@ helm lint backend
 # Example how to deploy backend helmchart
 helm install backend \
 --set service.type=NodePort \
---set service.nodePort=30777 \
+--set service.nodePort=30333 \
 --set replicaCount=10  \
 --set ingress.enabled=true \
-backend/hc/backend
+backend
 
 # ------------------------------------------------------------------
 #     Setting up "backend" helm chart - END
@@ -2364,9 +2364,9 @@ sed -E \
 # Setting up "frontend/values.yaml" file
 sed -E \
 -e '/^.*port:.*/a \ \ nodePort:' \
--e 's/^(.*paths:).*/\1 ["\/app\/\.*"]/' \
--e 's/^(.*annotations:).*/\1/' \
--e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
+-e 's/^(.*paths:).*/\1 ["\/app"]/' \
+# -e 's/^(.*annotations:).*/\1/' \
+# -e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
 -e '/^ingress.*/,/^\s*tls:.*/s/^(.*-\shost: )(.*)/\1 k8s-ingress-name/' \
 -e '/^.*pullPolicy:.*/a \ \ containerPort: 80' \
 -e '$a \\nlivenessProbe: \/app' \
