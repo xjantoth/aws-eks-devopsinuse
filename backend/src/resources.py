@@ -51,7 +51,7 @@ class IPAddressClass(Resource):
                     "ipaddress": a.ipaddress
                 } for a in addresses], 200
 
-            return {"msg": "No IP Addresses found in database."}, 200
+            return [{"msg": "No IP Addresses found in database."}], 200
 
         except Exception as e:
             return {"msg": f"Cloud not load data from database: {e}"}, 500
