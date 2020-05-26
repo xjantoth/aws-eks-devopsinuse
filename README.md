@@ -2224,8 +2224,6 @@ backend/charts/postgresql/templates/statefulset-slaves.yaml
 sed -E \
 -e '/^.*port:.*/a \ \ nodePort:' \
 -e 's/^(.*paths:).*/\1 ["\/api"]/' \
-# -e 's/^(.*annotations:).*/\1/' \
-# -e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
 -e '/^ingress.*/,/^\s*tls:.*/s/^(.*-\shost: )(.*)/\1 k8s-ingress-name/' \
 -e '/^.*pullPolicy:.*/a \ \ containerPort: 8000' \
 -e '/^.*pullPolicy:.*/a \ \ # Database connection settings:' \
@@ -2365,8 +2363,6 @@ sed -E \
 sed -E \
 -e '/^.*port:.*/a \ \ nodePort:' \
 -e 's/^(.*paths:).*/\1 ["\/app"]/' \
-# -e 's/^(.*annotations:).*/\1/' \
-# -e '/^ingress.*/,/^\s*hosts:.*/s/^(.*annotations:)(.*)/\1 \n    nginx.ingress.kubernetes.io\/use-regex: "true"/' \
 -e '/^ingress.*/,/^\s*tls:.*/s/^(.*-\shost: )(.*)/\1 k8s-ingress-name/' \
 -e '/^.*pullPolicy:.*/a \ \ containerPort: 80' \
 -e '$a \\nlivenessProbe: \/app' \
@@ -2412,6 +2408,18 @@ frontend
 
 # ------------------------------------------------------------------
 #     Setting up "frontend" helm chart - END
+# ------------------------------------------------------------------
+
+# ------------------------------------------------------------------
+#     Setting up "nginx" helm chart - START
+# ------------------------------------------------------------------
+
+helm install nginx stable/nginx-ingress  \
+--set controller.service.type=NodePort \
+--set controller.service.nodePorts.http=30111
+
+# ------------------------------------------------------------------
+#     Setting up "nginx" helm chart - EDN
 # ------------------------------------------------------------------
 ```
 
