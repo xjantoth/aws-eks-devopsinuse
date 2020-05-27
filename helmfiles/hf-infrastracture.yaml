@@ -32,8 +32,8 @@ releases:
       value: {{ requiredEnv "PSQL_DB_NAME" }}
     - name: image.env.secret.PSQL_DB_ADDRESS
       value: {{ requiredEnv "PSQL_DB_ADDRESS" }}
-    - name: image.env.secret.PSQL_DB_PORT
-      value: \"{{ requiredEnv "PSQL_DB_PORT" }}\"
+    #- name: image.env.secret.PSQL_DB_PORT
+    #  value: \"{{ requiredEnv "PSQL_DB_PORT" }}\"
 
     values:
       - postgresql:

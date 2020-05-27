@@ -2425,8 +2425,12 @@ helm install nginx stable/nginx-ingress  \
 
 
 # Deploy everything all at once
+
+# export data from: helmfiles/temp.data
+
 helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml template  --skip-deps
 helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml sync  --skip-deps
+helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml destroy
 
 ```
 
