@@ -36,7 +36,12 @@
  - [31. Executing terrafrom destroy will not work when terrafrom run incrementaly](#31-executing-terrafrom-destroy-will-not-work-when-terrafrom-run-incrementaly)
  - [32. Provison and destroy AWS EKS Kubernetes cluster with terrafrom](#32-provison-and-destroy-aws-eks-kubernetes-cluster-with-terrafrom)
  - [33. Desired Infrastracture with helm charts](#33-desired-infrastracture-with-helm-charts)
-
+ - [34. Setting up Infrastracture via docker-compose at local](#34-setting-up-infrastracture-via-docker-compose-at-local)
+ - [35. Install helm and helmfile binaries](#35-install-helm-and-helmfile-binaries)
+ - [36. Creating backend Python Flask helmchart dependent on PostgreSQL database](#36-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)
+ - [37. Creating frontend React app helmchart](#37-creating-frontend-react-app-helmchart)
+ - [38. Deploy Nginx Ingress Controller](#38-deploy-nginx-ingress-controller)
+ - [39. Deploy entire Infrastructure via helmfile binary](#39-deploy-entire-infrastructure-via-helmfile-binary)
 
 
 <!-- - [1. Introduction](#1-introduction)-->
@@ -2160,7 +2165,7 @@ terraform destroy -var-file terraform.eks.tfvars
 ```
 
 
-3. Helm charts
+# 3. Helm charts
 
 <!-- - [33. Desired Infrastracture with helm charts](#33-desired-infrastracture-with-helm-charts)-->
 ### 33. Desired Infrastracture with helm charts
@@ -2173,12 +2178,23 @@ How to start up the whole setup all at once `docker-compose`:
 * back-end
 * postgresql
 
+
+<!-- - [34. Setting up Infrastracture via docker-compose at local](#34-setting-up-infrastracture-via-docker-compose-at-local)-->
+### 34. Setting up Infrastracture via docker-compose at local
+
+**Make sure** that commands are installed at your PC:
+* `docker`
+* `docker-compose`
+
+
+**Follow** the instructions to bring up **the entire infrastracture up and running** by executing og one command: `docker-compose  up --build`
 ```bash
 git clone https://github.com/xjantoth/aws-eks-devopsinuse.git
 cd aws-eks-devopsinuse
 docker-compose  up --build
 
 # Make sure that you have this line in /etc/hosts
+# This can be easily done even on Windows OS (do a little search)
 vim /etc/hosts
 ...
 127.0.0.1 frontend,backend
@@ -2186,24 +2202,48 @@ vim /etc/hosts
 :wq!
 ```
 
+<!-- - [35. Install helm and helmfile binaries](#35-install-helm-and-helmfile-binaries)-->
+### 35. Install helm and helmfile binaries
+
+```bash
+some code ...
+```
+
+<!-- - [36. Creating backend Python Flask helmchart dependent on PostgreSQL database](#36-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)-->
+### 36. Creating backend Python Flask helmchart dependent on PostgreSQL database
+
 **Create** backend helm chart from scatch
 
 ```bash
 # Creating "backend" helm chart
 cd backend/hc
 helm create backend
+```
 
-# ------------------------------------------------------------------
-#     Setting up "backend" helm chart - START
-# ------------------------------------------------------------------
+**Files** to be modified (done by running four `sed commands`):
+* `backend/Chart.yaml`
+* `backend/charts/postgresql/templates/statefulset.yaml`          (a child helm chart file)
+* `backend/charts/postgresql/templates/statefulset-slaves.yaml`   (a child helm chart file)
+* `backend/values.yaml`
+* `backend/templates/service.yaml`
+* `backend/templates/deployment.yaml`
+* `backend/templates/secret.yaml` (completly new file)
+* `backend/templates/_helpers.tpl` (append at the and of this file)
 
+**Shape** your `Chart.yaml` file:
+
+```bash
 # Adding custom description to Chart.yaml file
 sed -E \
 -e 's/^(description:).*/\1 Backend Flask app helmchart/' \
 -e 's/^(appVersion:).*/\1 v1.0.0 /' \
 -e '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n' \
 -i backend/Chart.yaml
+```
 
+Download **postgresql** helm chart to a `backend/charts` folder and fix **apiVersion** errors in advance
+
+```bash
 # Downloads helm chart: "postgresql-3.18.3.tgz" to charts/ folder
 cd backend && helm dependency update && cd ..
 
@@ -2220,7 +2260,11 @@ backend/charts/postgresql/templates/statefulset.yaml \
 backend/charts/postgresql/templates/statefulset-slaves.yaml
 
 helm package backend/charts/postgresql -d backend/charts && rm -rf backend/charts/postgresql
+```
 
+**Setup** file: `backend/values.yaml` within **backend** helm chart
+
+```bash
 # Setting up "backend/values.yaml" file
 sed -E \
 -e '/^.*port:.*/a \ \ nodePort:' \
@@ -2269,14 +2313,20 @@ postgresql:
       ALTER DATABASE microservice OWNER TO micro;
 
 EOF
+```
 
+**Do some little** changes in file: `backend/templates/service.yaml`
+```bash
 # Setup "containerPort" in file: "backend/templates/service.yaml" 
 sed -E \
 -e 's/^(.*targetPort:).*/\1 {{ .Values.image.containerPort | default 80 }}/' \
 -e '/^.*targetPort:.*/a \ \ \ \ {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}\n      nodePort: {{ .Values.service.nodePort }}\n    {{- end }}' \
 -i backend/templates/service.yaml
+```
 
+**Do another little** changes in file: `backend/templates/deployment.yaml`
 
+```bash
 # Setup "livenessProbe" and "readinessProbe" in backend/templates/deployment.yaml
 sed -E \
 -e '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
@@ -2287,8 +2337,10 @@ sed -E \
 -e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ env:' \
 -e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ {{- include "helpers.list-env-variables" . | indent 10 }}' \
 -i backend/templates/deployment.yaml
+```
+**Create** a completly new file: `backend/templates/secret.yaml`
 
-
+```bash
 # Creating file: "backend/templates/secret.yaml"
 cat <<'EOF' >>backend/templates/secret.yaml
 apiVersion: v1
@@ -2302,7 +2354,11 @@ data:
   {{- end}}
 
 EOF
+```
 
+**Define and append** new variable in file: `backend/templates/_helpers.tpl`
+
+```bash
 # Enrich file: "backend/templates/_helpers.tpl"
 cat <<'EOF' >>backend/templates/_helpers.tpl
 
@@ -2320,7 +2376,9 @@ Create the looper to define secret mounts as ENV variables
 {{- end}}
 {{- end}}
 EOF
-
+```
+**Learn** how to template helm chart with colors
+```bash
 # Little nice feature to make your work more colorful
 highlight -S yaml <(helm template backend \
 --show-only templates/ingress.yaml \
@@ -2329,10 +2387,17 @@ highlight -S yaml <(helm template backend \
 --set image.containerPort=7 \
 --set ingress.enabled=true \
 backend)
+```
 
+**Check** for potential errors by running `helm lint <helmchart-name>`
+```bash
 # Check for potential errors
 helm lint backend
+```
 
+**Deploy** backend helmchart
+
+```bash
 # Example how to deploy backend helmchart
 helm install backend \
 --set service.type=NodePort \
@@ -2340,26 +2405,35 @@ helm install backend \
 --set replicaCount=10  \
 --set ingress.enabled=true \
 backend
+```
 
-# ------------------------------------------------------------------
-#     Setting up "backend" helm chart - END
-# ------------------------------------------------------------------
+<!-- - [37. Creating frontend React app helmchart](#37-creating-frontend-react-app-helmchart)-->
+### 37. Creating frontend React app helmchart
 
-# ------------------------------------------------------------------
-#     Setting up "frontend" helm chart - START
-# ------------------------------------------------------------------
-
+**Create** frontend helm chart
+```bash
 # Creating "frontend" helm chart
 cd frontend/hc
 helm create frontend
+```
 
+**Files** to be modified (done by running four `sed commands`):
+* `frontend/Chart.yaml`
+* `frontend/values.yaml`
+* `frontend/templates/service.yaml`
+* `frontend/templates/deployment.yaml`
 
+**Adding custom description** and **appVersion** to Chart.yaml file
+```bash
 # Adding custom description to Chart.yaml file
 sed -E \
 -e 's/^(description:).*/\1 Frontend React app helmchart/' \
 -e 's/^(appVersion:).*/\1 v1.0.0 /' \
 -i frontend/Chart.yaml
+```
 
+**Setup** file: frontend/values.yaml within frontend helm chart
+```bash
 # Setting up "frontend/values.yaml" file
 sed -E \
 -e '/^.*port:.*/a \ \ nodePort:' \
@@ -2370,13 +2444,19 @@ sed -E \
 -e '$a \\nreadinessProbe: \/app' \
 -e 's/^(.*repository:).*/\1 devopsinuse\/front-end/' \
 -i frontend/values.yaml
+```
 
+**Modifying** file: `frontend/templates/service.yaml`
+```bash
 # Setup "containerPort" in file: "frontend/templates/service.yaml" 
 sed -E \
 -e 's/^(.*targetPort:).*/\1 {{ .Values.image.containerPort | default 80 }}/' \
 -e '/^.*targetPort:.*/a \ \ \ \ {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort))) }}\n      nodePort: {{ .Values.service.nodePort }}\n    {{- end }}' \
 -i frontend/templates/service.yaml
+```
 
+**Setup** important **livenessProbe** and **readinessProbe** in file: `frontend/templates/deployment.yaml`
+```bash
 # Setup "livenessProbe" and "readinessProbe" in frontend/templates/deployment.yaml
 sed -E \
 -e '/^\s*livenessProbe:.*/,/^\s*port:.*/s/^(.*port:)(.*)/\1 {{ .Values.image.containerPort | default "http" }}/' \
@@ -2385,8 +2465,10 @@ sed -E \
 -e '/^\s*readinessProbe:.*/,/^\s*port:.*/s/^(.*path:)(.*)/\1 {{ .Values.readinessProbe | default "\/" }}/' \
 -e 's/^(.*containerPort:).*/\1 {{ .Values.image.containerPort }}/' \
 -i frontend/templates/deployment.yaml
+```
 
-
+**Learn** how to template helm chart with colors
+```bash
 # Little nice feature to make your work more colorful
 highlight -S yaml <(helm \
 template frontend \
@@ -2395,39 +2477,55 @@ template frontend \
 --set service.nodePort=30222 \
 --set image.containerPort=87 \
 --set ingress.enabled=true frontend)
+```
 
+**Verify** that helm chart has no error
+```bash
 # Check for potential errors
 helm lint frontend
-
-# Example ho to deploy front-end helmchart
+```
+**Deploy** frontend helm chart to a Kubernetes cluster
+```bash
+# Example how to deploy front-end helmchart
 helm install frontend \
 --set service.type=NodePort \
 --set service.nodePort=30222 \
 --set replicaCount=1 \
 --set ingress.enabled=true \
 frontend
+```
 
-# ------------------------------------------------------------------
-#     Setting up "frontend" helm chart - END
-# ------------------------------------------------------------------
-
-# ------------------------------------------------------------------
-#     Setting up "nginx" helm chart - START
-# ------------------------------------------------------------------
-
+<!-- - [38. Deploy Nginx Ingress Controller](#38-deploy-nginx-ingress-controller)-->
+### 38. Deploy Nginx Ingress Controller
+To finalize **the whole infrastracture** setup - please deploy  **Nginx Ingress Controller**
+```bash
 helm install nginx stable/nginx-ingress  \
 --set controller.service.type=NodePort \
 --set controller.service.nodePorts.http=30111
+```
 
-# ------------------------------------------------------------------
-#     Setting up "nginx" helm chart - EDN
-# ------------------------------------------------------------------
+<!-- - [39. Deploy entire Infrastructure via helmfile binary](#39-deploy-entire-infrastructure-via-helmfile-binary)-->
+### 39. Deploy entire Infrastructure via helmfile binary
+**Export** sensitive data to your console to be used by `helmfile` binary
 
-
-# Deploy everything all at once
-
+```bash
 # export data from: helmfiles/temp.data
+ cat helmfiles/secret.data
+export MASTER_DB_PASS="password"
+export MASTER_DB_USER="postgres"
 
+## Credentials for user: micro, database: microservice
+export PSQL_ALLOWED_IPS="10.42.0.0/16"
+export PSQL_DB_USER="micro"
+export PSQL_DB_PASS="password"
+export PSQL_DB_NAME="microservice"
+export PSQL_DB_ADDRESS="backend-postgresql"
+export PSQL_DB_PORT="5432"
+```
+
+**Deploy** your **whole infrastracture** via `helmfile` binary
+
+```bash
 helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml template  --skip-deps
 helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml sync  --skip-deps
 helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml destroy
