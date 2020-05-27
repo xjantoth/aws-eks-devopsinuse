@@ -1,0 +1,11 @@
+export MASTER_DB_PASS="password"
+export MASTER_DB_USER="postgres"
+
+## Credentials for user: micro, database: microservice
+export PSQL_ALLOWED_IPS="10.42.0.0/16"
+export PSQL_DB_USER="micro"
+export PSQL_DB_PASS="password"
+export PSQL_DB_NAME="microservice"
+export PSQL_DB_ADDRESS="backend-postgresql"
+export PSQL_DB_PORT="5432"
+
