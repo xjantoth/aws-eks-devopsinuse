@@ -2191,6 +2191,7 @@ How to start up the whole setup all at once `docker-compose`:
 ```bash
 git clone https://github.com/xjantoth/aws-eks-devopsinuse.git
 cd aws-eks-devopsinuse
+# sed -E 's/^(\s*axios\..*\('\'')(.*)(\).*)/\1http:\/\/backend\2\3/' -i frontend/src/App.js
 docker-compose  up --build
 
 # Make sure that you have this line in /etc/hosts

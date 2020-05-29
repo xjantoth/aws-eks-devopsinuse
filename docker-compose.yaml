@@ -2,12 +2,17 @@
 version: '3'
 services:
   ingress:
-    image: jwilder/nginx-proxy
+    image: docker.io/devopsinuse/nginx-docker-compose:v1.0.0
     ports:
-      - 80:80
+      - 8080:30000
     container_name: nginx
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+    build:
+      context: ./nginx/
+      dockerfile: Dockerfile
+    links:
+      - backend
+      - frontend
+
   frontend:
     image: docker.io/devopsinuse/front-end:v1.0.0
     depends_on:
@@ -17,7 +22,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3000:80
-    container_name: front-end
+    container_name: frontend
     links:
       - backend
     environment:
@@ -31,7 +36,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8000:8000
-    container_name: back-end
+    container_name: backend
     environment:
       - VIRTUAL_HOST=backend
       - PSQL_DB_USER=micro
