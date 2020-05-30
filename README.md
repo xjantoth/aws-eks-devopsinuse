@@ -2199,6 +2199,73 @@ cd aws-eks-devopsinuse
 ```bash
 docker system prune --all
 ```
+Explore file: `docker-compose.yaml`
+
+```yaml
+---
+version: '3'
+services:
+
+  # Nginx (Reverse proxy) specification
+  ingress:
+    image: docker.io/devopsinuse/nginx-docker-compose:v1.0.0
+    ports:
+      - 8080:30000
+    container_name: nginx
+    build:
+      context: ./nginx/
+      dockerfile: Dockerfile
+    links:
+      - backend
+      - frontend
+
+  # Frontend (React app) specification
+  frontend:
+    image: docker.io/devopsinuse/front-end:v1.0.0
+    depends_on:
+      - backend
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    ports:
+      - 3000:80
+    container_name: frontend
+    links:
+      - backend
+
+  # Backend (Python Flask) specification
+  backend:
+    image: docker.io/devopsinuse/back-end:v1.0.0
+    depends_on:
+      - db
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    container_name: backend
+    environment:
+      - VIRTUAL_HOST=backend
+      - PSQL_DB_USER=micro
+      - PSQL_DB_PASS=password
+      - PSQL_DB_NAME=microservice
+      - PSQL_DB_ADDRESS=postgresql
+      - PSQL_DB_PORT=5432
+
+  # PostgreSQL (dependency for Python Flask)
+  db:
+    image: postgres:alpine
+    ports:
+      - 5432:5432
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+
+```
+
 
 **Build** and **start** four docker containers (nginx, fronend, backend and database) via **docker-compose**
 ```bash
