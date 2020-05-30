@@ -1,6 +1,8 @@
 ---
 version: '3'
 services:
+
+  # Nginx (Reverse proxy) specification
   ingress:
     image: docker.io/devopsinuse/nginx-docker-compose:v1.0.0
     ports:
@@ -13,6 +15,7 @@ services:
       - backend
       - frontend
 
+  # Frontend (React app) specification
   frontend:
     image: docker.io/devopsinuse/front-end:v1.0.0
     depends_on:
@@ -25,8 +28,8 @@ services:
     container_name: frontend
     links:
       - backend
-    environment:
-      - VIRTUAL_HOST=frontend
+
+  # Backend (Python Flask) specification
   backend:
     image: docker.io/devopsinuse/back-end:v1.0.0
     depends_on:
@@ -44,6 +47,8 @@ services:
       - PSQL_DB_NAME=microservice
       - PSQL_DB_ADDRESS=postgresql
       - PSQL_DB_PORT=5432
+
+  # PostgreSQL (dependency for Python Flask)
   db:
     image: postgres:alpine
     ports:
@@ -54,3 +59,5 @@ services:
       - POSTGRES_PASSWORD=password
     volumes:
       - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+
+

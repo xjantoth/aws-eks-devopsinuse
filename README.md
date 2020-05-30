@@ -2187,27 +2187,85 @@ How to start up the whole setup all at once `docker-compose`:
 * `docker-compose`
 
 
+![](img/docker-compose-schema-1.png)
+
 **Follow** the instructions to bring up **the entire infrastracture up and running** by executing og one command: `docker-compose  up --build`
 ```bash
 git clone https://github.com/xjantoth/aws-eks-devopsinuse.git
 cd aws-eks-devopsinuse
-# sed -E 's/^(\s*axios\..*\('\'')(.*)(\).*)/\1http:\/\/backend\2\3/' -i frontend/src/App.js
-docker-compose  up --build
+```
 
+**Delete** all existing docker rrelated resources at your local
+```bash
+docker system prune --all
+```
+
+**Build** and **start** four docker containers (nginx, fronend, backend and database) via **docker-compose**
+```bash
+docker-compose  up --build
+```
+
+**Check built** docker images
+
+```bash
+docker images
+
+devopsinuse/nginx-docker-compose   v1.0.0              
+devopsinuse/front-end              v1.0.0              
+devopsinuse/back-end               v1.0.0              
+...
+
+```
+
+**Push** docker images to your **account** at https://hub.docker.com/
+This step is not **mandatory** if using already existing docker images **under devopsinuse account** at https://hub.docker.com/
+
+```bash
+# Login to your https://hub.docker.com/ account first
+docker login --username devopsinuse
+
+# Push previously build docker images to your **account** at https://hub.docker.com/
+docker push docker.io/devopsinuse/nginx-docker-compose:v1.0.0
+docker push docker.io/devopsinuse/front-end:v1.0.0
+docker push docker.io/devopsinuse/back-end:v1.0.0
+```
+
+**Make** sure that you have this line in `/etc/hosts`
+```bash
 # Make sure that you have this line in /etc/hosts
 # This can be easily done even on Windows OS (do a little search)
 vim /etc/hosts
 ...
-127.0.0.1 frontend,backend
+
+127.0.0.1 k8s-ingress-name
 ...
 :wq!
 ```
 
+![](img/docker-compose-1.png)
+
+
 <!-- - [35. Install helm and helmfile binaries](#35-install-helm-and-helmfile-binaries)-->
 ### 35. Install helm and helmfile binaries
 
+**Install** helm v3
 ```bash
-some code ...
+curl -L https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz | \
+sudo tar xvzf - --strip-components=1 -C /usr/local/bin/ linux-amd64/helm
+sudo chmod +x /usr/local/bin/helm
+
+# In case you have no helm chart repository added
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo update
+```
+
+**Install helmfile** binary
+
+```bash
+sudo curl -L \
+--output /usr/bin/helmfile \
+https://github.com/roboll/helmfile/releases/download/v0.116.0/helmfile_linux_amd64
+sudo chmod +x /usr/bin/helmfile
 ```
 
 <!-- - [36. Creating backend Python Flask helmchart dependent on PostgreSQL database](#36-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)-->
@@ -2215,6 +2273,7 @@ some code ...
 
 **Create** backend helm chart from scatch
 
+![](img/backend-hc-1.png)
 ```bash
 # Creating "backend" helm chart
 cd backend/hc
