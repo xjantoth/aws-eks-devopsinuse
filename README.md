@@ -2569,8 +2569,8 @@ helm install nginx stable/nginx-ingress  \
 **Export** sensitive data to your console to be used by `helmfile` binary
 
 ```bash
-# export data from: helmfiles/temp.data
- cat helmfiles/secret.data
+# export data from: temp.data
+cat secret.data
 export MASTER_DB_PASS="password"
 export MASTER_DB_USER="postgres"
 
@@ -2586,9 +2586,9 @@ export PSQL_DB_PORT="5432"
 **Deploy** your **whole infrastracture** via `helmfile` binary
 
 ```bash
-helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml template  --skip-deps
-helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml sync  --skip-deps
-helmfile --log-level=info  -f  helmfiles/hf-infrastracture.yaml destroy
+helmfile --log-level=info  -f  hf-infrastracture.yaml template  --skip-deps
+helmfile --log-level=info  -f  hf-infrastracture.yaml sync  --skip-deps
+helmfile --log-level=info  -f  hf-infrastracture.yaml destroy
 
 ```
 

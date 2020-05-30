@@ -9,7 +9,7 @@ releases:
       key: backend
       app: backend
     
-    chart: ../backend/hc/backend
+    chart: backend/hc/backend
     version: 0.1.0
     set:
     - name: service.type
@@ -54,7 +54,7 @@ releases:
       key: frontend
       app: frontend
 
-    chart: ../frontend/hc/frontend
+    chart: frontend/hc/frontend
     version: 0.1.0
     set:
     - name: service.type
