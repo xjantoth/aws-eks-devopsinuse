@@ -35,7 +35,7 @@
  - [30. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#30-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)
  - [31. Executing terrafrom destroy will not work when terrafrom run incrementaly](#31-executing-terrafrom-destroy-will-not-work-when-terrafrom-run-incrementaly)
  - [32. Provison and destroy AWS EKS Kubernetes cluster with terrafrom](#32-provison-and-destroy-aws-eks-kubernetes-cluster-with-terrafrom)
- - [33. Desired Infrastracture with helm charts](#33-desired-infrastracture-with-helm-charts)
+ - [33. Desired Infrastructure with helm charts](#33-desired-infrastructure-with-helm-charts)
  - [34. Setting up Infrastracture via docker-compose at local](#34-setting-up-infrastracture-via-docker-compose-at-local)
  - [35. Install helm and helmfile binaries](#35-install-helm-and-helmfile-binaries)
  - [36. Creating backend Python Flask helmchart dependent on PostgreSQL database](#36-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)
@@ -2167,8 +2167,8 @@ terraform destroy -var-file terraform.eks.tfvars
 
 # 3. Helm charts
 
-<!-- - [33. Desired Infrastracture with helm charts](#33-desired-infrastracture-with-helm-charts)-->
-### 33. Desired Infrastracture with helm charts
+<!-- - [33. Desired Infrastructure with helm charts](#33-desired-infrastructure-with-helm-charts)-->
+### 33. Desired Infrastructure with helm charts
 
 ![](img/nginx-2.png)
 
