@@ -2432,8 +2432,8 @@ https://github.com/roboll/helmfile/releases/download/v0.116.0/helmfile_linux_amd
 sudo chmod +x /usr/bin/helmfile
 ```
 
-<!-- - [36. Creating backend Python Flask helmchart dependent on PostgreSQL database](#36-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)-->
-### 36. Creating backend Python Flask helmchart dependent on PostgreSQL database
+<!-- - [38. Creating backend Python Flask helmchart dependent on PostgreSQL database](#38-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)-->
+### 38. Creating backend Python Flask helmchart dependent on PostgreSQL database
 
 **Create** backend helm chart from scatch
 
@@ -2631,8 +2631,8 @@ helm install backend \
 backend
 ```
 
-<!-- - [37. Creating frontend React app helmchart](#37-creating-frontend-react-app-helmchart)-->
-### 37. Creating frontend React app helmchart
+<!-- - [39. Creating frontend React app helmchart](#39-creating-frontend-react-app-helmchart)-->
+### 39. Creating frontend React app helmchart
 
 **Create** frontend helm chart
 ```bash
@@ -2719,8 +2719,8 @@ helm install frontend \
 frontend
 ```
 
-<!-- - [38. Deploy Nginx Ingress Controller](#38-deploy-nginx-ingress-controller)-->
-### 38. Deploy Nginx Ingress Controller
+<!-- - [40. Deploy Nginx Ingress Controller](#40-deploy-nginx-ingress-controller)-->
+### 40. Deploy Nginx Ingress Controller
 To finalize **the whole infrastracture** setup - please deploy  **Nginx Ingress Controller**
 ```bash
 helm install nginx stable/nginx-ingress  \
