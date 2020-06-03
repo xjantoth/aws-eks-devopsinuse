@@ -4,7 +4,6 @@ WORKDIR /app
 COPY . ./
 RUN npm audit fix && npm i && npm run build
 
-
 # Stage 2 - the production environment
 # https://daten-und-bass.io/blog/serving-a-vue-cli-production-build-on-a-sub-path-with-nginx/
 FROM nginx:alpine
@@ -12,7 +11,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=react-build /app/build /usr/share/nginx/html/app
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
-
 
 # cd frontend
 # docker build -t <account>/frontend:v0.0.1 .

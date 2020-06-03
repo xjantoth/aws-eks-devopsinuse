@@ -35,6 +35,9 @@
  - [30. First NGINX deployment by kubectl to AWS EKS cluster created by terraform](#30-first-nginx-deployment-by-kubectl-to-aws-eks-cluster-created-by-terraform)
  - [31. Executing terrafrom destroy will not work when terrafrom run incrementaly](#31-executing-terrafrom-destroy-will-not-work-when-terrafrom-run-incrementaly)
  - [32. Provison and destroy AWS EKS Kubernetes cluster with terrafrom](#32-provison-and-destroy-aws-eks-kubernetes-cluster-with-terrafrom)
+
+**Helm charts**
+
  - [33. Desired Infrastructure with helm charts](#33-desired-infrastructure-with-helm-charts)
  - [34. Setting up Infrastracture via docker-compose at local](#34-setting-up-infrastracture-via-docker-compose-at-local)
  - [35. Install helm and helmfile binaries](#35-install-helm-and-helmfile-binaries)
@@ -2272,6 +2275,99 @@ services:
 docker-compose  up --build
 ```
 
+
+<!-- - [35. Explore backend part of the setup](#35-explore-backend-part-of-the-setup)-->
+### 35. Explore backend part of the setup
+
+
+**Call** "Save IP address" like button directly from command line **via Nginx reverse proxy**
+```bash
+curl -s -X POST http://127.0.0.1:8080/api/ipaddress | jq
+{
+  "id": 8,
+  "created": "2020-06-03 16:38:53.304293",
+  "ipaddress": "172.18.0.3"
+}
+
+```
+
+**Call** "Save IP address" like button directly **at port 8000**
+```bash
+ curl -s -X POST http://127.0.0.1:8000/api/ipaddress | jq 
+{
+  "id": 7,
+  "created": "2020-06-03 16:38:34.259627",
+  "ipaddress": "172.18.0.3"
+}
+```
+
+
+**Get all IP addressess saved in database** via Nginx reverse proxy **at port 8080**
+```bash
+curl -s -X GET http://127.0.0.1:8080/api/ipaddress | jq 
+[
+  {
+    "id": 1,
+    "created": "2020-06-02 09:34:30.797599",
+    "ipaddress": "172.18.0.3"
+  },
+  {
+    "id": 2,
+    "created": "2020-06-02 09:34:32.146712",
+    "ipaddress": "172.18.0.3"
+  },
+...
+  {
+    "id": 8,
+    "created": "2020-06-03 16:38:53.304293",
+    "ipaddress": "172.18.0.3"
+  }
+]
+
+```
+
+**Get all IP addressess saved in database** directly **at port 8000**
+```bash
+curl -s -X GET http://127.0.0.1:8000/api/ipaddress | jq
+[
+  {
+    "id": 1,
+    "created": "2020-06-02 09:34:30.797599",
+    "ipaddress": "172.18.0.3"
+  },
+  {
+    "id": 2,
+...
+  {
+    "id": 8,
+    "created": "2020-06-03 16:38:53.304293",
+    "ipaddress": "172.18.0.3"
+  }
+]
+
+```
+
+**Delete** a record from the **database via Nginx reverse proxy at port 8080**
+```bash
+curl -s -X DELETE "http://127.0.0.1:8080/api/ipaddress?id=7" | jq
+{
+  "msg": "Entry with id: 7 deleted"
+}
+
+```  
+
+**Delete** a record from the **database directly at port 8000**
+```bash
+curl -s -X DELETE "http://127.0.0.1:8000/api/ipaddress?id=8" | jq
+{
+  "msg": "Entry with id: 8 deleted"
+}
+
+```  
+
+
+<!-- - [36. Push docker images to docker hub](#36-push-docker-images-to-docker-hub)-->
+### 36. Push docker images to docker hub
 **Check built** docker images
 
 ```bash
@@ -2312,8 +2408,8 @@ vim /etc/hosts
 ![](img/docker-compose-1.png)
 
 
-<!-- - [35. Install helm and helmfile binaries](#35-install-helm-and-helmfile-binaries)-->
-### 35. Install helm and helmfile binaries
+<!-- - [37. Install helm and helmfile binaries](#37-install-helm-and-helmfile-binaries)-->
+### 37. Install helm and helmfile binaries
 
 **Install** helm v3
 ```bash
