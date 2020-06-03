@@ -2279,6 +2279,7 @@ docker-compose  up --build
 <!-- - [35. Explore backend part of the setup](#35-explore-backend-part-of-the-setup)-->
 ### 35. Explore backend part of the setup
 
+![](img/docker-compose-schema-1.png)
 
 **Call** "Save IP address" like button directly from command line **via Nginx reverse proxy**
 ```bash
