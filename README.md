@@ -2784,6 +2784,11 @@ helm install backend \
 backend
 ```
 
+**Retrive all kubernetes objects** created with backend deployment
+```bash
+kubectl get pods,svc,ing,deployment,rs,secret
+```
+
 **Retrive public** IP addresses of your Kubernetes nodes
 
 ```bash
