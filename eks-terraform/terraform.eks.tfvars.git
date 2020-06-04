@@ -11,3 +11,8 @@ custom_tags = {
 eks-cluster-name = "diu-eks-cluster"
 kubernetes-version = "1.16"
 
+desired_number_nodes = 3
+max_number_nodes = 3
+min_number_nodes = 1
+
+tcp_ports = ["22", "30111", "30222", "30333"]

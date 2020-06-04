@@ -70,9 +70,9 @@ data "aws_availability_zones" "default" {
 #  tags           = var.custom_tags
 #
 #  scaling_config {
-#    desired_size = 2
-#    max_size     = 3
-#    min_size     = 1
+#    desired_size = var.desired_number_nodes
+#    max_size     = var.max_number_nodes
+#    min_size     = var.min_number_nodes
 #  }
 #
 #  remote_access {
@@ -95,12 +95,9 @@ data "aws_availability_zones" "default" {
 #
 #
 ## Uncomment to create Security Group rule for Kubernetes SSH port 22, NodePort 30111 - start
-#locals {
-#  tcp_ports = ["22", "30111"]
-#}
 #
 #resource "aws_security_group_rule" "this" {
-#  for_each = toset(local.tcp_ports)
+#  for_each = toset(var.tcp_ports)
 #
 #  type              = "ingress"
 #  from_port         = each.value

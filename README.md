@@ -2719,8 +2719,96 @@ helm install frontend \
 frontend
 ```
 
-<!-- - [40. Deploy Nginx Ingress Controller](#40-deploy-nginx-ingress-controller)-->
-### 40. Deploy Nginx Ingress Controller
+
+### 40. Deploy backend helmchart
+
+**Reminder** how to start AWS EKS cluster by terraform:
+
+* **git clone** https://github.com/xjantoth/aws-eks-devopsinuse.git
+* **uncomment** all files from `eks-terraform/` folder at once:
+  - `sed  's/^#//' -i iam.tf`
+  - `sed  's/^#//' -i sg.tf`
+  - `sed  's/^#//' -i subnets.tf`
+  - `sed -e '/^.*EKS_CLUSTER_START.*/,/^.*EKS_CLUSTER_END.*/s/^#//' -i main.tf`
+  - `sed -e '/^.*EKS_NODE_GROUP_START.*/,/^.*EKS_NODE_GROUP_END.*/s/^#//' -i main.tf`
+  - variables.tf  (this file is uncommented all the time)
+  - outputs.tf    (does not **really** matter whether it's uncommented or not)
+
+**Slightly modified** terrafrom code:
+
+```bash
+cat terraform.eks.tfvars
+
+aws_region     = "eu-central-1"
+aws_access_key = "..."
+aws_secret_key = "..."
+ssh_public_key = "~/.ssh/eks-aws.pub"
+custom_tags = {
+  Name      = "diu-eks-cluster-tag"
+  Terraform = "true"
+  Delete    = "true"
+}
+
+eks-cluster-name   = "diu-eks-cluster"
+kubernetes-version = "1.16"
+
+desired_number_nodes = 8
+max_number_nodes     = 9
+min_number_nodes     = 1
+
+tcp_ports = ["22", "30111", "30222", "30333"]
+```
+
+**Bring** up your AWS EKS Kubernetes cluster (this will take about ~15min)
+
+```bash
+terraform apply -var-file terraform.eks.tfvars
+```
+
+
+Update **KUBECONFIG** once AWS EKS cluster is up and running
+```bash
+aws eks --region eu-central-1 update-kubeconfig --name diu-eks-cluster --profile devopsinuse
+```
+
+
+**Deploy** backend helmchart to AWS EKS cluster
+
+```bash
+# Example how to deploy backend helmchart
+helm install backend \
+--set service.type=NodePort \
+--set service.nodePort=30333 \
+--set replicaCount=1  \
+--set ingress.enabled=true \
+backend
+```
+
+**Retrive public** IP addresses of your Kubernetes nodes
+
+```bash
+kubectl get nodes -o wide | awk -F" " '{print $1"\t"$7}'
+```
+**Call** "Save IP address" like button directly from command line **via Kubernetes Node Port 30333**
+```bash
+curl -s -X POST http://11.22.33.44:30333/api/ipaddress | jq
+```
+
+**Get all IP addressess saved in database** directly **at port 30333**
+```bash
+curl -s -X GET http://11.22.33.44:30333/api/ipaddress | jq
+```
+
+**Delete** a record from the **database via Kubernetes Node Port at port 30333**
+```bash
+curl -s -X DELETE "http://11.22.33.44:30333/api/ipaddress?id=7" | jq
+```
+
+
+
+
+<!-- - [41. Deploy Nginx Ingress Controller](#41-deploy-nginx-ingress-controller)-->
+### 41. Deploy Nginx Ingress Controller
 To finalize **the whole infrastracture** setup - please deploy  **Nginx Ingress Controller**
 ```bash
 helm install nginx stable/nginx-ingress  \
@@ -2728,8 +2816,8 @@ helm install nginx stable/nginx-ingress  \
 --set controller.service.nodePorts.http=30111
 ```
 
-<!-- - [39. Deploy entire Infrastructure via helmfile binary](#39-deploy-entire-infrastructure-via-helmfile-binary)-->
-### 39. Deploy entire Infrastructure via helmfile binary
+<!-- - [42. Deploy entire Infrastructure via helmfile binary](#42-deploy-entire-infrastructure-via-helmfile-binary)-->
+### 42. Deploy entire Infrastructure via helmfile binary
 **Export** sensitive data to your console to be used by `helmfile` binary
 
 ```bash
