@@ -2527,7 +2527,7 @@ postgresql:
   pgHbaConfiguration: |
     local all all trust
     host all all localhost trust
-    host microservice micro 10.42.0.0/16 password
+    host microservice micro 172.31.0.0/16 password
 
   initdbScripts:
     db-init.sql: |
@@ -2836,7 +2836,7 @@ export MASTER_DB_PASS="password"
 export MASTER_DB_USER="postgres"
 
 ## Credentials for user: micro, database: microservice
-export PSQL_ALLOWED_IPS="10.42.0.0/16"
+export PSQL_ALLOWED_IPS="172.31.0.0/16"
 export PSQL_DB_USER="micro"
 export PSQL_DB_PASS="password"
 export PSQL_DB_NAME="microservice"
