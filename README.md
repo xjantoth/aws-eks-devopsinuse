@@ -2724,6 +2724,18 @@ helm lint frontend
   - variables.tf  (this file is uncommented all the time)
   - outputs.tf    (does not **really** matter whether it's uncommented or not)
 
+**Notes**:
+```bash
+echo "" > ~/.kube/config && cat ~/.kube/config
+cd eks-terraform
+rm terraform.tfstate.backup terraform.tfstate .terraform -rf
+ls  ~/.ssh/eks-aws.pub
+terraform init
+terraform validate
+terraform fmt -recursive
+```
+
+
 **Slightly modified** terrafrom code:
 
 ```bash
