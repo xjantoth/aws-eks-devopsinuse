@@ -2818,23 +2818,7 @@ frontend
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- - [41. Deploy Nginx Ingress Controller](#41-deploy-nginx-ingress-controller)-->
-### 41. Deploy Nginx Ingress Controller
+### 42. Deploy Nginx Ingress Controller
 To finalize **the whole infrastracture** setup - please deploy  **Nginx Ingress Controller**
 ```bash
 helm install nginx stable/nginx-ingress  \
@@ -2842,8 +2826,7 @@ helm install nginx stable/nginx-ingress  \
 --set controller.service.nodePorts.http=30111
 ```
 
-<!-- - [42. Deploy entire Infrastructure via helmfile binary](#42-deploy-entire-infrastructure-via-helmfile-binary)-->
-### 42. Deploy entire Infrastructure via helmfile binary
+### 43. Deploy entire Infrastructure via helmfile binary
 **Export** sensitive data to your console to be used by `helmfile` binary
 
 ```bash
