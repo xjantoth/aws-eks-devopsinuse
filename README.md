@@ -2708,16 +2708,6 @@ template frontend \
 # Check for potential errors
 helm lint frontend
 ```
-**Deploy** frontend helm chart to a Kubernetes cluster
-```bash
-# Example how to deploy front-end helmchart
-helm install frontend \
---set service.type=NodePort \
---set service.nodePort=30222 \
---set replicaCount=1 \
---set ingress.enabled=true \
-frontend
-```
 
 
 ### 40. Deploy backend helmchart
@@ -2808,6 +2798,37 @@ curl -s -X GET http://11.22.33.44:30333/api/ipaddress | jq
 ```bash
 curl -s -X DELETE "http://11.22.33.44:30333/api/ipaddress?id=7" | jq
 ```
+
+
+### 41. Deploy your frontend helmchart
+
+**Deploy** frontend helm chart to a Kubernetes cluster
+```bash
+# Example how to deploy front-end helmchart
+helm install frontend \
+--set service.type=NodePort \
+--set service.nodePort=30222 \
+--set replicaCount=1 \
+--set ingress.enabled=true \
+frontend
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
