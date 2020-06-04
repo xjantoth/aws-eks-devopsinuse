@@ -2813,7 +2813,7 @@ helm install frontend \
 frontend
 ```
 
-
+![](img/nginx-2.png)
 
 
 
