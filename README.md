@@ -2834,12 +2834,66 @@ frontend
 
 
 ### 42. Deploy Nginx Ingress Controller
+
+**List all helm deployments** within AWS EKS cluster
+```bash
+helm ls -A
+
+NAME            NAMESPACE       REVISION        UPDATED                                        STATUS   CHART                   APP VERSION
+backend         default         1               2020-06-05 20:33:13.247397928 +0200 CEST       deployed backend-0.1.0           v1.0.0     
+frontend        default         1               2020-06-05 20:34:01.234179092 +0200 CEST       deployed frontend-0.1.0          v1.0.0     
+```
+
 To finalize **the whole infrastracture** setup - please deploy  **Nginx Ingress Controller**
 ```bash
 helm install nginx stable/nginx-ingress  \
 --set controller.service.type=NodePort \
 --set controller.service.nodePorts.http=30111
 ```
+
+**Make** an entry in your `/etc/hosts`
+```bash
+kubectl get nodes -o wide | awk -F" " '{print $7 "\tk8s-ingress-name"}' | grep -v "EXTER"
+
+18.156.129.241  k8s-ingress-name
+18.197.79.93    k8s-ingress-name
+3.122.216.250   k8s-ingress-name
+52.59.235.132   k8s-ingress-name
+18.195.205.46   k8s-ingress-name
+3.121.160.67    k8s-ingress-name
+3.122.119.63    k8s-ingress-name
+3.127.236.111   k8s-ingress-name
+```
+
+![](img/nginx-ingress-controller-1.png)
+
+**Describe** configuration for **Ingress Kubernetes objects**
+```bash
+kubectl get ing backend -o yaml
+kubectl get ing frontend -o yaml
+```
+
+**List the content** of WORKDIR within Nginx Ingress Controller running container
+```bash
+kubectl exec -it nginx-nginx-ingress-controller-c5ffff6df-7hnnk -- ls  
+fastcgi.conf            mime.types              scgi_params
+fastcgi.conf.default    mime.types.default      scgi_params.default
+fastcgi_params          modsecurity             template
+fastcgi_params.default  modules                 uwsgi_params
+geoip                   nginx.conf              uwsgi_params.default
+koi-utf                 nginx.conf.default      win-utf
+koi-win                 opentracing.json
+lua                     owasp-modsecurity-crs
+
+```
+
+
+**Get the content** of `nginx.conf` file from inside of running Nginx pod from AWS EKS cluster
+```bash
+kubectl exec -it nginx-nginx-ingress-controller-c5ffff6df-7hnnk -- cat nginx.conf > nginx-from-inside-of-running-pod.conf
+```
+
+
 
 ### 43. Deploy entire Infrastructure via helmfile binary
 **Export** sensitive data to your console to be used by `helmfile` binary
