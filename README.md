@@ -969,11 +969,12 @@ commands will detect it and remind you to do so if necessary.
 
 
 ```bash
- …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1 … 1  cat terraform.eks.tfvars
+cat terraform.eks.tfvars
+
 aws_region     = "eu-central-1"
-aws_access_key = "A...C"
-aws_secret_key = "G...K"
-ssh_public_key = "/home/<username>/.ssh/eks-aws.pub"
+aws_access_key = "..."
+aws_secret_key = "..."
+ssh_public_key = "/home/user/.ssh/eks-aws.pub"
 custom_tags = {
   Name      = "diu-eks-cluster-tag"
   Terraform = "true"
@@ -981,6 +982,13 @@ custom_tags = {
 }
 
 eks-cluster-name = "diu-eks-cluster"
+kubernetes-version = "1.16"
+
+desired_number_nodes = 2
+max_number_nodes = 3
+min_number_nodes = 1
+
+tcp_ports = ["22", "30111", "30222", "30333"]
 ```
 
 
@@ -1003,10 +1011,10 @@ fi
 **Run** `terraform validate` and `terraform fmt -recursive` first to validate the code and do a proper formatting of the terrafrom code
 
 ```bash
- …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1  terraform validate
+terraform validate
 Success! The configuration is valid.
 
- …  sbx  aws-eks-devopsinuse  eks-terraform   master ✚ 1  terraform fmt -recursive
+terraform fmt -recursive
 ```
 
 * it's mostly refered that **terraform** has 3 main files with a correspondng naming convention:
@@ -2619,17 +2627,6 @@ backend)
 helm lint backend
 ```
 
-**Deploy** backend helmchart
-
-```bash
-# Example how to deploy backend helmchart
-helm install backend \
---set service.type=NodePort \
---set service.nodePort=30333 \
---set replicaCount=10  \
---set ingress.enabled=true \
-backend
-```
 
 <!-- - [39. Creating frontend React app helmchart](#39-creating-frontend-react-app-helmchart)-->
 ### 39. Creating frontend React app helmchart
@@ -2715,6 +2712,12 @@ helm lint frontend
 **Reminder** how to start AWS EKS cluster by terraform:
 
 * **git clone** https://github.com/xjantoth/aws-eks-devopsinuse.git
+
+* to **comment** terraform files (getting back to initial clear state). This helps to get the terraform code to the **state right after fresh** `git clone https://github.com/xjantoth/aws-eks-devopsinuse.git` command.
+  - `sed -i 's/^/#/' iam.tf outputs.tf sg.tf subnets.tf`  
+  - `sed -i '/^.*EKS_CLUSTER_START.*/,/^.*EKS_NODE_GROUP_END.*/s/^/#/' main.tf`
+
+
 * **uncomment** all files from `eks-terraform/` folder at once:
   - `sed  's/^#//' -i iam.tf`
   - `sed  's/^#//' -i sg.tf`
