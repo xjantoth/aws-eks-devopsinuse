@@ -2722,6 +2722,7 @@ helm lint frontend
   - `sed  's/^#//' -i iam.tf`
   - `sed  's/^#//' -i sg.tf`
   - `sed  's/^#//' -i subnets.tf`
+  - `sed 's/^#//' -i outputs.tf`
   - `sed -e '/^.*EKS_CLUSTER_START.*/,/^.*EKS_CLUSTER_END.*/s/^#//' -i main.tf`
   - `sed -e '/^.*EKS_NODE_GROUP_START.*/,/^.*EKS_NODE_GROUP_END.*/s/^#//' -i main.tf`
   - variables.tf  (this file is uncommented all the time)
@@ -2892,10 +2893,21 @@ lua                     owasp-modsecurity-crs
 ```bash
 kubectl exec -it nginx-nginx-ingress-controller-c5ffff6df-7hnnk -- cat nginx.conf > nginx-from-inside-of-running-pod.conf
 ```
+**!!!**
+**Amazon itself refers that sometimes there is the problem to shut down EKS cluster** because of ENI interface (Elastic Network Interface) however, by now you **know how to delete this ENI by hand** in case this happens to you.
 
+https://aws.amazon.com/premiumsupport/knowledge-center/eks-delete-cluster-issues/
 
 
 ### 43. Deploy entire Infrastructure via helmfile binary
+
+**Delete** your helm deployments
+```bash
+helm delete backend
+helm delete frontend
+helm delete nginx
+```
+
 **Export** sensitive data to your console to be used by `helmfile` binary
 
 ```bash
@@ -2911,6 +2923,93 @@ export PSQL_DB_PASS="password"
 export PSQL_DB_NAME="microservice"
 export PSQL_DB_ADDRESS="backend-postgresql"
 export PSQL_DB_PORT="5432"
+```
+
+Take a look what is inside `hf-infrastructure.yaml` file
+
+```yaml
+cat hf-infrastracture.yaml 
+repositories:
+- name: stable
+  url:  https://kubernetes-charts.storage.googleapis.com
+
+releases:
+  # (Helm v3) Upgrade your deployment with basic auth
+  - name: backend
+    labels:
+      key: backend
+      app: backend
+    
+    chart: backend/hc/backend
+    version: 0.1.0
+    set:
+    - name: service.type
+      value: NodePort
+    - name: service.nodePort
+      value: 30333
+    - name: replicaCount
+      value: 10
+    - name: ingress.enabled
+      value: true
+    - name: postgresql.postgresqlUsername
+      value: {{ requiredEnv "MASTER_DB_USER" }}
+    - name: postgresql.postgresqlPassword
+      value: {{ requiredEnv "MASTER_DB_PASS" }}
+    - name: image.env.secret.PSQL_DB_USER
+      value: {{ requiredEnv "PSQL_DB_USER" }}
+    - name: image.env.secret.PSQL_DB_PASS
+      value: {{ requiredEnv "PSQL_DB_PASS" }}
+    - name: image.env.secret.PSQL_DB_NAME
+      value: {{ requiredEnv "PSQL_DB_NAME" }}
+    - name: image.env.secret.PSQL_DB_ADDRESS
+      value: {{ requiredEnv "PSQL_DB_ADDRESS" }}
+    #- name: image.env.secret.PSQL_DB_PORT
+    #  value: \"{{ requiredEnv "PSQL_DB_PORT" }}\"
+
+    values:
+      - postgresql:
+          pgHbaConfiguration: |
+            local all all trust
+            host all all localhost trust
+            host {{ requiredEnv "PSQL_DB_NAME" }} {{ requiredEnv "PSQL_DB_USER" }} {{ requiredEnv "PSQL_ALLOWED_IPS" }} password
+          initdbScripts:
+            db-init.sql: |
+              CREATE DATABASE {{ requiredEnv "PSQL_DB_NAME" }};
+              CREATE USER {{ requiredEnv "PSQL_DB_USER" }} WITH ENCRYPTED PASSWORD '{{ requiredEnv "PSQL_DB_PASS" }}';
+              GRANT ALL PRIVILEGES ON DATABASE {{ requiredEnv "PSQL_DB_NAME" }} TO {{ requiredEnv "PSQL_DB_USER" }};
+              ALTER DATABASE {{ requiredEnv "PSQL_DB_NAME" }} OWNER TO {{ requiredEnv "PSQL_DB_USER" }};
+
+  # Frontend specification
+  - name: frontend
+    labels:
+      key: frontend
+      app: frontend
+
+    chart: frontend/hc/frontend
+    version: 0.1.0
+    set:
+    - name: service.type
+      value: NodePort
+    - name: service.nodePort
+      value: 30222
+    - name: replicaCount
+      value: 1
+    - name: ingress.enabled
+      value: true
+  
+  # Nginx Ingress Controller specification
+  - name: nginx
+    labels:
+      key: nginx
+      app: nginx
+
+    chart: stable/nginx-ingress
+    # version: 0.1.0
+    set:
+    - name: controller.service.type
+      value: NodePort
+    - name: controller.service.nodePorts.http
+      value: 30111
 ```
 
 **Deploy** your **whole infrastracture** via `helmfile` binary
