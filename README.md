@@ -3020,14 +3020,15 @@ helmfile --log-level=info  -f  hf-infrastracture.yaml sync  --skip-deps
 helmfile --log-level=info  -f  hf-infrastracture.yaml destroy
 ```
 
-### 44. Helmfile selectors
+### 44. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile
 
-* **helmfile**'s `selectors` option/flag brings a lot of flexibility to Kubernetes deployments
+* **helmfile**'s `selectors` brings a lot of flexibility to Kubernetes deployments
 * allows to **install**, **delete**, **template** particular helm deployments individually
 * **preserve the advantage** of having one single **helmfile** for entire deployment
+* file: `hf-infrastracture-without-backend-frontend-nodeports.yaml` has **comments** in front of NodePort specifcation for **frontend** and **backend** release
 
 ```yaml
-cat hf-infrastracture.yaml 
+cat hf-infrastracture-without-backend-frontend-nodeports.yaml
 repositories:
 - name: stable
   url:  https://kubernetes-charts.storage.googleapis.com
@@ -3041,6 +3042,11 @@ releases:
     
     chart: backend/hc/backend
     version: 0.1.0
+    set:
+    #- name: service.type
+    #  value: NodePort
+    #- name: service.nodePort
+    #  value: 30333
     ...
 
   # Frontend specification
@@ -3051,6 +3057,13 @@ releases:
 
     chart: frontend/hc/frontend
     ...
+    set:
+    #- name: service.type
+    #  value: NodePort
+    #- name: service.nodePort
+    #  value: 30222
+    ...
+
 
   # Nginx Ingress Controller specification
   - name: nginx
@@ -3081,36 +3094,36 @@ export PSQL_DB_PORT="5432"
 
 * **Template helm charts to AWS EKS Kubernetes cluster**
 
-Template **backend** helm chart deployment by using `--selecor flag`
+
 ```bash
 helmfile --selector key=backend \
--f  hf-infrastracture.yaml template \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
 --skip-deps
 
 helmfile --selector app=backend \
--f  hf-infrastracture.yaml template  \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template  \
 --skip-deps
 ```
 
 Template **frontend** helm chart deployment by using `--selecor flag`
 ```bash
 helmfile --selector key=frontend \
--f  hf-infrastracture.yaml template \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
 --skip-deps
 
 helmfile --selector app=frontend \
--f  hf-infrastracture.yaml template \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
 --skip-deps
 ```
 
 Template **nginx** helm chart deployment by using `--selecor flag`
 ```bash
 helmfile --selector key=nginx \
--f  hf-infrastracture.yaml template \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
 --skip-deps
 
 helmfile --selector app=nginx \
--f  hf-infrastracture.yaml template  \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template  \
 --skip-deps
 ```
 
@@ -3119,35 +3132,38 @@ helmfile --selector app=nginx \
 *Install* **backend** helm chart deployment by using `--selecor flag`
 ```bash
 helmfile --selector key=backend \
--f  hf-infrastracture.yaml sync \ 
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
 --skip-deps
 
 helmfile --selector app=backend \
--f  hf-infrastracture.yaml sync  \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  \
 --skip-deps
 ```
 
 *Install* **frontend** helm chart deployment by using `--selecor flag`
 ```bash
 helmfile --selector key=frontend \
--f  hf-infrastracture.yaml sync \ 
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
 --skip-deps
 
 helmfile --selector app=frontend \
--f  hf-infrastracture.yaml sync \ 
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
 --skip-deps
 ```
 
 *Install* **nginx** helm chart deployment by using `--selecor flag`
 ```bash
 helmfile --selector key=nginx \
--f  hf-infrastracture.yaml sync \ 
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
 --skip-deps
 
 helmfile --selector app=nginx \
--f  hf-infrastracture.yaml sync  \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  \
 --skip-deps
 ```
+
+
+
 
 
 
