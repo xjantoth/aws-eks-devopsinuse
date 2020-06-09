@@ -3020,7 +3020,9 @@ helmfile --log-level=info  -f  hf-infrastracture.yaml sync  --skip-deps
 helmfile --log-level=info  -f  hf-infrastracture.yaml destroy
 ```
 
-### 44. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile
+### 44. Terraform destroy fails
+
+### 45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile
 
 * **helmfile**'s `selectors` brings a lot of flexibility to Kubernetes deployments
 * allows to **install**, **delete**, **template** particular helm deployments individually
