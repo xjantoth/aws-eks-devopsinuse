@@ -17,7 +17,7 @@ releases:
     - name: service.nodePort
       value: 30333
     - name: replicaCount
-      value: 10
+      value: 4
     - name: ingress.enabled
       value: true
     - name: postgresql.postgresqlUsername

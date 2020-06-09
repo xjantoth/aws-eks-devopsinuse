@@ -2948,7 +2948,7 @@ releases:
     - name: service.nodePort
       value: 30333
     - name: replicaCount
-      value: 10
+      value: 4
     - name: ingress.enabled
       value: true
     - name: postgresql.postgresqlUsername
@@ -3018,7 +3018,135 @@ releases:
 helmfile --log-level=info  -f  hf-infrastracture.yaml template  --skip-deps
 helmfile --log-level=info  -f  hf-infrastracture.yaml sync  --skip-deps
 helmfile --log-level=info  -f  hf-infrastracture.yaml destroy
+```
 
+### 44. Helmfile selectors
+
+* **helmfile**'s `selectors` option/flag brings a lot of flexibility to Kubernetes deployments
+* allows to **install**, **delete**, **template** particular helm deployments individually
+* **preserve the advantage** of having one single **helmfile** for entire deployment
+
+```yaml
+cat hf-infrastracture.yaml 
+repositories:
+- name: stable
+  url:  https://kubernetes-charts.storage.googleapis.com
+
+releases:
+  # (Helm v3) Upgrade your deployment with basic auth
+  - name: backend
+    labels:
+      key: backend
+      app: backend
+    
+    chart: backend/hc/backend
+    version: 0.1.0
+    ...
+
+  # Frontend specification
+  - name: frontend
+    labels:
+      key: frontend
+      app: frontend
+
+    chart: frontend/hc/frontend
+    ...
+
+  # Nginx Ingress Controller specification
+  - name: nginx
+    labels:
+      key: nginx
+      app: nginx
+
+    chart: stable/nginx-ingress
+    ...
+```
+
+**Export** sensitive data to your console to be used by `helmfile` binary
+
+```bash
+# export data from: temp.data
+cat secret.data
+export MASTER_DB_PASS="password"
+export MASTER_DB_USER="postgres"
+
+## Credentials for user: micro, database: microservice
+export PSQL_ALLOWED_IPS="172.31.0.0/16"
+export PSQL_DB_USER="micro"
+export PSQL_DB_PASS="password"
+export PSQL_DB_NAME="microservice"
+export PSQL_DB_ADDRESS="backend-postgresql"
+export PSQL_DB_PORT="5432"
+```
+
+* **Template helm charts to AWS EKS Kubernetes cluster**
+
+Template **backend** helm chart deployment by using `--selecor flag`
+```bash
+helmfile --selector key=backend \
+-f  hf-infrastracture.yaml template \
+--skip-deps
+
+helmfile --selector app=backend \
+-f  hf-infrastracture.yaml template  \
+--skip-deps
+```
+
+Template **frontend** helm chart deployment by using `--selecor flag`
+```bash
+helmfile --selector key=frontend \
+-f  hf-infrastracture.yaml template \
+--skip-deps
+
+helmfile --selector app=frontend \
+-f  hf-infrastracture.yaml template \
+--skip-deps
+```
+
+Template **nginx** helm chart deployment by using `--selecor flag`
+```bash
+helmfile --selector key=nginx \
+-f  hf-infrastracture.yaml template \
+--skip-deps
+
+helmfile --selector app=nginx \
+-f  hf-infrastracture.yaml template  \
+--skip-deps
+```
+
+* **Install/Sync helm charts to AWS EKS Kubernetes cluster**
+
+*Install* **backend** helm chart deployment by using `--selecor flag`
+```bash
+helmfile --selector key=backend \
+-f  hf-infrastracture.yaml sync \ 
+--skip-deps
+
+helmfile --selector app=backend \
+-f  hf-infrastracture.yaml sync  \
+--skip-deps
+```
+
+*Install* **frontend** helm chart deployment by using `--selecor flag`
+```bash
+helmfile --selector key=frontend \
+-f  hf-infrastracture.yaml sync \ 
+--skip-deps
+
+helmfile --selector app=frontend \
+-f  hf-infrastracture.yaml sync \ 
+--skip-deps
+```
+
+*Install* **nginx** helm chart deployment by using `--selecor flag`
+```bash
+helmfile --selector key=nginx \
+-f  hf-infrastracture.yaml sync \ 
+--skip-deps
+
+helmfile --selector app=nginx \
+-f  hf-infrastracture.yaml sync  \
+--skip-deps
 ```
 
 
