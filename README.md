@@ -3098,70 +3098,46 @@ export PSQL_DB_PORT="5432"
 
 
 ```bash
-helmfile --selector key=backend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
---skip-deps
+helmfile --selector key=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
 
-helmfile --selector app=backend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml template  \
---skip-deps
+helmfile --selector app=backend -f hf-infrastracture-without-backend-frontend-nodeports.yaml template  --skip-deps
 ```
 
 Template **frontend** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=frontend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
---skip-deps
+helmfile --selector key=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
 
-helmfile --selector app=frontend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
---skip-deps
+helmfile --selector app=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
 ```
 
 Template **nginx** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=nginx \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml template \
---skip-deps
+helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
 
-helmfile --selector app=nginx \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml template  \
---skip-deps
+helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
 ```
 
 * **Install/Sync helm charts to AWS EKS Kubernetes cluster**
 
 *Install* **backend** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=backend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
---skip-deps
+helmfile --selector key=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
 
-helmfile --selector app=backend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  \
---skip-deps
+helmfile --selector app=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  --skip-deps
 ```
 
 *Install* **frontend** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=frontend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
---skip-deps
+helmfile --selector key=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
 
-helmfile --selector app=frontend \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
---skip-deps
+helmfile --selector app=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
 ```
 
 *Install* **nginx** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=nginx \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync \ 
---skip-deps
+helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
 
-helmfile --selector app=nginx \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  \
---skip-deps
+helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  --skip-deps
 ```
 
 
