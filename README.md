@@ -40,12 +40,17 @@
 
  - [33. Desired Infrastructure with helm charts](#33-desired-infrastructure-with-helm-charts)
  - [34. Setting up Infrastracture via docker-compose at local](#34-setting-up-infrastracture-via-docker-compose-at-local)
- - [35. Install helm and helmfile binaries](#35-install-helm-and-helmfile-binaries)
- - [36. Creating backend Python Flask helmchart dependent on PostgreSQL database](#36-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)
- - [37. Creating frontend React app helmchart](#37-creating-frontend-react-app-helmchart)
- - [38. Deploy Nginx Ingress Controller](#38-deploy-nginx-ingress-controller)
- - [39. Deploy entire Infrastructure via helmfile binary](#39-deploy-entire-infrastructure-via-helmfile-binary)
-
+ - [35. Explore backend part of the setup](#35-explore-backend-part-of-the-setup)
+ - [36. Push docker images to docker hub](#36-push-docker-images-to-docker-hub)
+ - [37. Install helm and helmfile binaries](#37-install-helm-and-helmfile-binaries)
+ - [38. Creating backend Python Flask helmchart dependent on PostgreSQL database](#38-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)
+ - [39. Creating frontend React app helmchart](#39-creating-frontend-react-app-helmchart)
+ - [40. Deploy backend helmchart](#40-deploy-backend-helmchart)
+ - [41. Deploy your frontend helmchart](#41-deploy-your-frontend-helmchart)
+ - [42. Deploy Nginx Ingress Controller](#42-deploy-nginx-ingress-controller)
+ - [43. Deploy entire Infrastructure via helmfile binary](#43-deploy-entire-infrastructure-via-helmfile-binary)
+ - [44. Terraform destroy fails](#44-terraform-destroy-fails)
+ - [45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile](#45-helmfile-selectors-and-removing-nodeport-options-from-backend-and-frontend-release-specification-in-helmfile)
 
 <!-- - [1. Introduction](#1-introduction)-->
 ### 1. Introduction
@@ -2707,6 +2712,7 @@ helm lint frontend
 ```
 
 
+<!-- - [40. Deploy backend helmchart](#40-deploy-backend-helmchart)-->
 ### 40. Deploy backend helmchart
 
 **Reminder** how to start AWS EKS cluster by terraform:
@@ -2816,6 +2822,7 @@ curl -s -X DELETE "http://11.22.33.44:30333/api/ipaddress?id=7" | jq
 ```
 
 
+<!-- - [41. Deploy your frontend helmchart](#41-deploy-your-frontend-helmchart)-->
 ### 41. Deploy your frontend helmchart
 
 **Deploy** frontend helm chart to a Kubernetes cluster
@@ -2834,6 +2841,7 @@ frontend
 
 
 
+<!-- - [42. Deploy Nginx Ingress Controller](#42-deploy-nginx-ingress-controller)-->
 ### 42. Deploy Nginx Ingress Controller
 
 **List all helm deployments** within AWS EKS cluster
@@ -2899,6 +2907,7 @@ kubectl exec -it nginx-nginx-ingress-controller-c5ffff6df-7hnnk -- cat nginx.con
 https://aws.amazon.com/premiumsupport/knowledge-center/eks-delete-cluster-issues/
 
 
+<!-- - [43. Deploy entire Infrastructure via helmfile binary](#43-deploy-entire-infrastructure-via-helmfile-binary)-->
 ### 43. Deploy entire Infrastructure via helmfile binary
 
 **Delete** your helm deployments
@@ -3020,8 +3029,10 @@ helmfile --log-level=info  -f  hf-infrastracture.yaml sync  --skip-deps
 helmfile --log-level=info  -f  hf-infrastracture.yaml destroy
 ```
 
+<!-- - [44. Terraform destroy fails](#44-terraform-destroy-fails)-->
 ### 44. Terraform destroy fails
 
+<!-- - [45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile](#45-helmfile-selectors-and-removing-nodeport-options-from-backend-and-frontend-release-specification-in-helmfile)-->
 ### 45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile
 
 * **helmfile**'s `selectors` brings a lot of flexibility to Kubernetes deployments
