@@ -51,6 +51,7 @@
  - [43. Deploy entire Infrastructure via helmfile binary](#43-deploy-entire-infrastructure-via-helmfile-binary)
  - [44. Terraform destroy fails](#44-terraform-destroy-fails)
  - [45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile](#45-helmfile-selectors-and-removing-nodeport-options-from-backend-and-frontend-release-specification-in-helmfile)
+ - [46. Connect to fronetend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-fronetend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)
 
 <!-- - [1. Introduction](#1-introduction)-->
 ### 1. Introduction
@@ -3031,6 +3032,35 @@ helmfile --log-level=info  -f  hf-infrastracture.yaml destroy
 
 <!-- - [44. Terraform destroy fails](#44-terraform-destroy-fails)-->
 ### 44. Terraform destroy fails
+**Delete problematic AWS ENI** interface for **eks-remoteAccess-XYZ** Security Group and corresponfing **eni-111111111111**
+
+```bash
+aws ec2 delete-network-interface --network-interface-id eni-0096ccb8555c18958 --profile devopsinuse --region eu-central-1
+```
+
+![](img/sg-problem-1.png)
+
+![](img/sg-problem-2.png)
+
+![](img/sg-problem-3.png)
+
+![](img/sg-problem-4.png)
+
+![](img/sg-problem-5.png)
+
+
+
+
+**Now** Terrafrom destroy AWS EKS cluster will **work**
+```bash
+terraform destroy -var-file terraform.eks.tfvars
+
+...
+aws_subnet.this[0]: Destroying... [id=subnet-064d6205839537b7b]
+aws_subnet.this[2]: Destroying... [id=subnet-092c8c9af4f4501e6]
+aws_subnet.this[1]: Destroying... [id=subnet-06aab122584ff2903]
+...
+```
 
 <!-- - [45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile](#45-helmfile-selectors-and-removing-nodeport-options-from-backend-and-frontend-release-specification-in-helmfile)-->
 ### 45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile
@@ -3151,7 +3181,44 @@ helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nod
 helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  --skip-deps
 ```
 
+<!-- - [46. Connect to fronetend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-fronetend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)-->
+### 46. Connect to fronetend and backend applications from inside of Nginx ingress controller pod
 
+**List** frontend, backend Kubernetes services
+```bash
+kubectl get svc
+```    
+
+**Get** inside of **Nginx ingress controller pod** via `kubectl exec ...` command
+
+```bash
+# find out the pod name of nginx ingress controller
+kubectl get pods
+kubectl exec -it ... -- sh
+
+```
+**Use** `curl/wget` commands inside of **Nginx ingress controller pod** to call **frontend**
+
+
+```bash
+# use on of these commands to get the response from React app
+wget -O - http://frontend:80/app/
+curl -L http://frontend:80/app/
+```
+
+
+**Use** `curl/wget` commands inside of **Nginx ingress controller pod** to call **backend**
+
+```bash
+# use on of these commands to get the response from React app
+wget -O - --method=GET    http://backend:80/api/ipaddress
+wget -O - --method=POST   http://backend:80/api/ipaddress
+wget -O - --method=DELETE "http://backend:80/api/ipaddress?id=2"
+
+curl -X GET    http://backend:80/api/ipaddress
+curl -X POST   http://backend:80/api/ipaddress
+curl -X DELETE "http://backend:80/api/ipaddress?id=2"
+```
 
 
 
