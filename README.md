@@ -51,7 +51,7 @@
  - [43. Deploy entire Infrastructure via helmfile binary](#43-deploy-entire-infrastructure-via-helmfile-binary)
  - [44. Terraform destroy fails](#44-terraform-destroy-fails)
  - [45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile](#45-helmfile-selectors-and-removing-nodeport-options-from-backend-and-frontend-release-specification-in-helmfile)
- - [46. Connect to fronetend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-fronetend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)
+ - [46. Connect to frontend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-frontend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)
 
 <!-- - [1. Introduction](#1-introduction)-->
 ### 1. Introduction
@@ -3181,20 +3181,79 @@ helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nod
 helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  --skip-deps
 ```
 
-<!-- - [46. Connect to fronetend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-fronetend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)-->
-### 46. Connect to fronetend and backend applications from inside of Nginx ingress controller pod
+<!-- - [46. Connect to frontend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-frontend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)-->
+### 46. Connect to frontend and backend applications from inside of Nginx ingress controller pod
+
+![](img/nginx-3.png)
+
+
+**Deploy** entire infrastracture via **helmfile** if needed
+
+```bash
+# Tempate your helmfile deployment first
+helmfile \
+--selector key=backend \
+--selector key=frontend \
+--selector key=nginx \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
+
+# Deploy everything at once
+helmfile \
+--selector key=backend \
+--selector key=frontend \
+--selector key=nginx \
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
+
+# Check fot the result of helmfile deployment
+helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                        STATUS   CHART                   APP VERSION
+backend         default         1               2020-06-12 20:55:46.534892289 +0200 CEST       deployed backend-0.1.0           v1.0.0
+frontend        default         1               2020-06-12 20:55:46.555193202 +0200 CEST       deployed frontend-0.1.0          v1.0.0
+nginx           default         1               2020-06-12 20:55:47.879248749 +0200 CEST       deployed nginx-ingress-1.39.1    0.32.0
+
+```
 
 **List** frontend, backend Kubernetes services
 ```bash
 kubectl get svc
+NAME                                  TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+backend                               ClusterIP   10.100.78.115    <none>        80/TCP                       99s
+backend-postgresql                    ClusterIP   10.100.168.82    <none>        5432/TCP                     99s
+backend-postgresql-headless           ClusterIP   None             <none>        5432/TCP                     99s
+frontend                              ClusterIP   10.100.103.7     <none>        80/TCP                       99s
+kubernetes                            ClusterIP   10.100.0.1       <none>        443/TCP                      11m
+nginx-nginx-ingress-controller        NodePort    10.100.250.185   <none>        80:30111/TCP,443:30604/TCP   97s
+nginx-nginx-ingress-default-backend   ClusterIP   10.100.128.155   <none>        80/TCP                       97s
+
 ```    
+
+**List** all available **pods** in default namespace
+
+```bash
+kubectl get pods -o wide
+NAME                                                           IP               NODE                                              NOMINATED NODE   READINESS GATES
+backend-597c44ccf5-b8mjz                                       172.31.101.51    ip-172-31-101-220.eu-central-1.compute.internal   <none>           <none>
+backend-597c44ccf5-j9j2j                                       172.31.102.191   ip-172-31-102-186.eu-central-1.compute.internal   <none>           <none>
+backend-597c44ccf5-vl5nj                                       172.31.100.114   ip-172-31-100-130.eu-central-1.compute.internal   <none>           <none>
+backend-597c44ccf5-zr2m9                                       172.31.101.199   ip-172-31-101-18.eu-central-1.compute.internal    <none>           <none>
+backend-postgresql-0                                           172.31.102.171   ip-172-31-102-185.eu-central-1.compute.internal   <none>           <none>
+frontend-58bf9db5c8-sjqrm                                      172.31.100.133   ip-172-31-100-151.eu-central-1.compute.internal   <none>           <none>
+nginx-nginx-ingress-controller-c5ffff6df-ffst4                 172.31.101.229   ip-172-31-101-220.eu-central-1.compute.internal   <none>           <none>
+nginx-nginx-ingress-default-backend-6d96c457f6-p4tqp           172.31.102.220   ip-172-31-102-186.eu-central-1.compute.internal   <none>           <none>
+
+```
+
 
 **Get** inside of **Nginx ingress controller pod** via `kubectl exec ...` command
 
 ```bash
 # find out the pod name of nginx ingress controller
-kubectl get pods
-kubectl exec -it ... -- sh
+kubectl get pods | grep nginx
+nginx-nginx-ingress-controller-c5ffff6df-ffst4         1/1     Running   0          4m59s
+nginx-nginx-ingress-default-backend-6d96c457f6-p4tqp   1/1     Running   0          4m59s
+
+kubectl exec -it nginx-nginx-ingress-controller-c5ffff6df-ffst4 -- sh
+/etc/nginx $
 
 ```
 **Use** `curl/wget` commands inside of **Nginx ingress controller pod** to call **frontend**
@@ -3202,8 +3261,20 @@ kubectl exec -it ... -- sh
 
 ```bash
 # use on of these commands to get the response from React app
-wget -O - http://frontend:80/app/
 curl -L http://frontend:80/app/
+```
+
+Do a **DNS** search on **frontend** service name
+
+```bash
+nslookup  frontend.default.svc.cluster.local
+Server:         10.100.0.10
+Address:        10.100.0.10:53
+
+
+Name:   frontend.default.svc.cluster.local
+Address: 10.100.103.7
+
 ```
 
 
@@ -3211,14 +3282,35 @@ curl -L http://frontend:80/app/
 
 ```bash
 # use on of these commands to get the response from React app
-wget -O - --method=GET    http://backend:80/api/ipaddress
-wget -O - --method=POST   http://backend:80/api/ipaddress
-wget -O - --method=DELETE "http://backend:80/api/ipaddress?id=2"
-
 curl -X GET    http://backend:80/api/ipaddress
 curl -X POST   http://backend:80/api/ipaddress
 curl -X DELETE "http://backend:80/api/ipaddress?id=2"
 ```
+
+
+Do a **DNS** search on **backend** service name
+```bash
+/etc/nginx $ nslookup backend.default.svc.cluster.local
+Server:         10.100.0.10
+Address:        10.100.0.10:53
+
+
+Name:   backend.default.svc.cluster.local
+Address: 10.100.78.115
+```
+
+
+Reach **backend** and **frontend** via nginx pod you are currently **in**
+```bash
+# use on of these commands to get the response from React app
+curl -L http://localhost:80/app/
+
+curl -X GET    http://localhost:80/api/ipaddress
+curl -X POST   http://localhost:80/api/ipaddress
+curl -X DELETE "http://localhost:80/api/ipaddress?id=2"
+```
+
+
 
 
 
