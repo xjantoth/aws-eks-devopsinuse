@@ -3186,6 +3186,29 @@ helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nod
 
 ![](img/nginx-3.png)
 
+**If you got a totally** fresh AWS EKS cluster - update your **KUBECONFIG** file
+```bash
+aws eks --region eu-central-1 \
+update-kubeconfig \
+--name diu-eks-cluster \
+--profile devopsinuse &> /dev/null
+```
+
+**Export** sensitive data to your console to be used by helmfile binary
+```bash
+# export data from: temp.data
+cat secret.data
+export MASTER_DB_PASS="password"
+export MASTER_DB_USER="postgres"
+
+## Credentials for user: micro, database: microservice
+export PSQL_ALLOWED_IPS="172.31.0.0/16"
+export PSQL_DB_USER="micro"
+export PSQL_DB_PASS="password"
+export PSQL_DB_NAME="microservice"
+export PSQL_DB_ADDRESS="backend-postgresql"
+export PSQL_DB_PORT="5432"
+```
 
 **Deploy** entire infrastracture via **helmfile** if needed
 
