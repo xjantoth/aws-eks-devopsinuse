@@ -56,6 +56,44 @@
 <!-- - [1. Introduction](#1-introduction)-->
 ### 1. Introduction
 
+![](img/devopsinuse.png)
+
+- Section 1. **Provisioning of AWS EKS Kubernetes cluster manually in AWS console**
+    - AWS EKS **control plane** ($0.10/hour per AWS EKS cluster)
+    - AWS EKS **node group**
+    - proceed with a simple **Nginx web server** Kubernetes deployment
+    <br/><br/>
+
+- Section 2. **Write terrafrom code to provision **AWS EKS K8S cluster** automatically** 
+    - applying terrafrom code *"file by file"*
+    - apply all terrafrom code *"all at once"*
+    - demonstrate another simple **Nginx web server** Kubernetes deployment
+    - *Tip*: 
+        - `terraform apply -var-file terraform.eks.tfvars`
+        - **work** with AWS EKS cluster ...
+        - `helm delete <hc-name>`, `kubectl delete -f <file-name>.yaml`
+        - `terraform destroy -var-file terraform.eks.tfvars`
+    <br/><br/>
+
+- Section 3. **Leveraging helm charts for AWS EKS Kubernetes deployment**
+    - creating **frontend** / **backend + postgresql** / **nginx ingress controller** architecture 
+    - using custom made  **frontend** / **backend + postgresql** applications
+    - creating onw **frontend** and **backend** helm charts
+
+**Important notes**:
+* please **run** `terraform destroy -var-file terraform.eks.tfvars` **whenever** you not using your resources in AWS
+* all **materials** can be found at my **Github** project
+  - `https://github.com/xjantoth/aws-eks-devopsinuse`
+* **feel free** to post any question into **Q&A section**
+* **all** videos are recorded in **Full HD** however Udemy's player use *HD*
+* I'm greatful for your **reviews** - please drop some **COMMENTS** :)
+* please setup **budget** within your **Free AWS account** to be notified if from some reason AWS is going to **charge some fees**.
+
+<br/><br/>
+
+* the best way how to use this cousre: [Materials for each lecture at xjantoth Github repository](https://github.com/xjantoth/aws-eks-devopsinuse)
+* **AWS EKS** (Elastic Kubernetes Service) **costs $0.10/hour/per** K8S cluster !!!
+
 <!-- - [2. EKS cluster costs few cents per hour](#2-eks-cluster-costs-few-cents-per-hour)-->
 ### 2. EKS cluster costs few cents per hour
 
