@@ -2222,8 +2222,50 @@ ip-172-31-102-105.eu-central-1.compute.internal 3.120.228.32
 terraform destroy -var-file terraform.eks.tfvars
 ```
 
+# Learn AWS EKS Kubernetes cluster with Helm Charts (Part 2)
+![](img/devopsinuse.png)
 
-# 3. Helm charts
+**Introduction**
+- **Leveraging helm charts** for AWS EKS Kubernetes deployment
+    - using custom made  **frontend** / **backend + postgresql** applications
+    - writing **Dockerfiles**
+    - **docker-compose** specification for:
+      - backend,
+      - frontend,
+      - Nginx Reverse Proxy,
+      - PostgreSQL 
+    - **build** docker images
+    - learning about **helm** and **helmfile** binaries
+    - create **backend** helm chart (for dockerized  custom written Python Flask application)
+    - create **fronetend** helm chart (for dockerized custom written React application)
+    - using **Nginx Ingress Controller** helm chart(used as reverse proxy)
+    - using **PostgreSQL database** helm chart as **dependency** for backend helm chart
+
+
+
+**!!! This course is a the second part of my previous course and it is highly recommended to ENROLL in:**
+
+*Learn AWS EKS Kubernetes cluster and devops in AWS (Part 1)*
+
+**unless** you are **familiar** with AWS EKS(Elastic Kubernetes Service) solution and **you can set it up on your OWN**.
+
+!!! If **someone** do not insist to use AWS EKS for deployment - and **already** having Kubenretes cluster **available** somewhere else ready to use - **ONLY and ONLY** in that case this course can be used as STANDALONE.
+
+
+
+**Important notes**:
+* please **run** `terraform destroy -var-file terraform.eks.tfvars` **whenever** you not using your resources in AWS
+* all **materials** can be found at my **Github** project
+  - `https://github.com/xjantoth/aws-eks-devopsinuse`
+* **feel free** to post any question into **Q&A section**
+* **all** videos are recorded in **Full HD** however Udemy's player use *HD*
+* I'm greatful for your **reviews** - please drop some **COMMENTS** :)
+* please setup **budget** within your **Free AWS account** to be notified if from some reason AWS is going to **charge some fees**.
+
+<br/><br/>
+
+
+##  3. Helm charts
 
 <!-- - [33. Desired Infrastructure with helm charts](#33-desired-infrastructure-with-helm-charts)-->
 ### 33. Desired Infrastructure with helm charts
