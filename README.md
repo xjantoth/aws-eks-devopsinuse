@@ -2558,29 +2558,15 @@ helm create backend
 sed -E \
 -e 's/^(description:).*/\1 Backend Flask app helmchart/' \
 -e 's/^(appVersion:).*/\1 v1.0.0 /' \
--e '$a  \\ndependencies: \n- name: postgresql \n  version: "3.18.3" \n  repository: "https://kubernetes-charts.storage.googleapis.com" \n' \
+-e '$a  \\ndependencies: \n- name: postgresql \n  version: "8.10.8" \n  repository: "https://charts.bitnami.com/bitnami" \n' \
 -i backend/Chart.yaml
 ```
 
 Download **postgresql** helm chart to a `backend/charts` folder and fix **apiVersion** errors in advance
 
 ```bash
-# Downloads helm chart: "postgresql-3.18.3.tgz" to charts/ folder
+# Downloads helm chart: to charts/ folder
 cd backend && helm dependency update && cd ..
-
-# Untar "backend/charts/postgresql-3.18.3.tgz" to folder: backend/charts/
-# and remove tarball "backend/charts/postgresql-3.18.3.tgz"
-tar xvzf \
-backend/charts/postgresql-3.18.3.tgz \
--C backend/charts && \
-rm backend/charts/postgresql-3.18.3.tgz
-
-# Fix API version for "StatefulSet" Kubernetes objects 
-sed -i 's/apiVersion: apps\/v1beta2/apiVersion: apps\/v1/g' \
-backend/charts/postgresql/templates/statefulset.yaml \
-backend/charts/postgresql/templates/statefulset-slaves.yaml
-
-helm package backend/charts/postgresql -d backend/charts && rm -rf backend/charts/postgresql
 ```
 
 **Setup** file: `backend/values.yaml` within **backend** helm chart
@@ -2614,9 +2600,10 @@ postgresql:
     tag: latest
     debug: true
 
-  postgresqlUsername: postgres
-
-  postgresqlPassword: password
+  global:
+    postgresql:
+      postgresqlUsername: postgres
+      postgresqlPassword: password
 
   persistence:
     enabled: false
@@ -3108,9 +3095,9 @@ releases:
 **Deploy** your **whole infrastracture** via `helmfile` binary
 
 ```bash
-helmfile --log-level=info  -f  hf-infrastracture.yaml template  --skip-deps
-helmfile --log-level=info  -f  hf-infrastracture.yaml sync  --skip-deps
-helmfile --log-level=info  -f  hf-infrastracture.yaml destroy
+helmfile -f  hf-infrastracture.yaml template
+helmfile -f  hf-infrastracture.yaml sync
+helmfile -f  hf-infrastracture.yaml destroy
 ```
 
 <!-- - [44. Terraform destroy fails](#44-terraform-destroy-fails)-->
@@ -3222,46 +3209,46 @@ export PSQL_DB_PORT="5432"
 
 
 ```bash
-helmfile --selector key=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
+helmfile --selector key=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template 
 
-helmfile --selector app=backend -f hf-infrastracture-without-backend-frontend-nodeports.yaml template  --skip-deps
+helmfile --selector app=backend -f hf-infrastracture-without-backend-frontend-nodeports.yaml template  
 ```
 
 Template **frontend** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
+helmfile --selector key=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template 
 
-helmfile --selector app=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
+helmfile --selector app=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template 
 ```
 
 Template **nginx** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
+helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template 
 
-helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
+helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml template 
 ```
 
 * **Install/Sync helm charts to AWS EKS Kubernetes cluster**
 
 *Install* **backend** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
+helmfile --selector key=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync 
 
-helmfile --selector app=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  --skip-deps
+helmfile --selector app=backend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  
 ```
 
 *Install* **frontend** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
+helmfile --selector key=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync 
 
-helmfile --selector app=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
+helmfile --selector app=frontend -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync 
 ```
 
 *Install* **nginx** helm chart deployment by using `--selecor flag`
 ```bash
-helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
+helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync 
 
-helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  --skip-deps
+helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  
 ```
 
 <!-- - [46. Connect to frontend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-frontend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)-->
@@ -3301,14 +3288,14 @@ helmfile \
 --selector key=backend \
 --selector key=frontend \
 --selector key=nginx \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml template --skip-deps
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml template 
 
 # Deploy everything at once
 helmfile \
 --selector key=backend \
 --selector key=frontend \
 --selector key=nginx \
--f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync --skip-deps
+-f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync 
 
 # Check fot the result of helmfile deployment
 helm ls
@@ -3416,7 +3403,28 @@ curl -X POST   http://localhost:80/api/ipaddress
 curl -X DELETE "http://localhost:80/api/ipaddress?id=2"
 ```
 
+### 47. Deploy whole setup with Persistend storage for PostgreSQL database
 
+Adjust `/etc/hosts` file if you have not done it already
+
+```bash
+kubectl get nodes -o wide | awk -F" " '{print $7 "\tk8s-ingress-name"}' | grep -v "EXTER"
+```
+
+
+Deploy entire setup via `helmfile`
+```bash
+export MASTER_DB_PASS="password"
+export MASTER_DB_USER="postgres"
+
+## Credentials for user: micro, database: microservice
+export PSQL_ALLOWED_IPS="172.31.0.0/16"
+export PSQL_DB_USER="micro"
+export PSQL_DB_PASS="password"
+export PSQL_DB_NAME="microservice"
+export PSQL_DB_ADDRESS="backend-postgresql"
+export PSQL_DB_PORT="5432"
+```
 
 
 

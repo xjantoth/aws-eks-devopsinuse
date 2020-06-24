@@ -1,0 +1,91 @@
+repositories:
+- name: stable
+  url:  https://kubernetes-charts.storage.googleapis.com
+- name: bitnami
+  url:  https://charts.bitnami.com/bitnami
+
+releases:
+  # (Helm v3) Upgrade your deployment with basic auth
+  - name: backend
+    labels:
+      key: backend
+      app: backend
+    
+    chart: backend/hc/backend
+    version: 0.1.0
+    set:
+    #- name: service.type
+    #  value: NodePort
+    #- name: service.nodePort
+    #  value: 30333
+    - name: replicaCount
+      value: 1
+    - name: ingress.enabled
+      value: true
+    - name: global.postgresql.postgresqlUsername
+      value: {{ requiredEnv "MASTER_DB_USER" }}
+    - name: global.postgresql.postgresqlPassword
+      value: {{ requiredEnv "MASTER_DB_PASS" }}
+    - name: image.env.secret.PSQL_DB_USER
+      value: {{ requiredEnv "PSQL_DB_USER" }}
+    - name: image.env.secret.PSQL_DB_PASS
+      value: {{ requiredEnv "PSQL_DB_PASS" }}
+    - name: image.env.secret.PSQL_DB_NAME
+      value: {{ requiredEnv "PSQL_DB_NAME" }}
+    - name: image.env.secret.PSQL_DB_ADDRESS
+      value: {{ requiredEnv "PSQL_DB_ADDRESS" }}
+    #- name: image.env.secret.PSQL_DB_PORT
+    #  value: \"{{ requiredEnv "PSQL_DB_PORT" }}\"
+
+    values:
+      - postgresql:
+          pgHbaConfiguration: |
+            local all all trust
+            host all all localhost trust
+            host {{ requiredEnv "PSQL_DB_NAME" }} {{ requiredEnv "PSQL_DB_USER" }} {{ requiredEnv "PSQL_ALLOWED_IPS" }} password
+          initdbScripts:
+            db-init.sql: |
+              CREATE DATABASE {{ requiredEnv "PSQL_DB_NAME" }};
+              CREATE USER {{ requiredEnv "PSQL_DB_USER" }} WITH ENCRYPTED PASSWORD '{{ requiredEnv "PSQL_DB_PASS" }}';
+              GRANT ALL PRIVILEGES ON DATABASE {{ requiredEnv "PSQL_DB_NAME" }} TO {{ requiredEnv "PSQL_DB_USER" }};
+              ALTER DATABASE {{ requiredEnv "PSQL_DB_NAME" }} OWNER TO {{ requiredEnv "PSQL_DB_USER" }};
+
+  # Frontend specification
+  - name: frontend
+    labels:
+      key: frontend
+      app: frontend
+
+    chart: frontend/hc/frontend
+    version: 0.1.0
+    set:
+    #- name: service.type
+    #  value: NodePort
+    #- name: service.nodePort
+    #  value: 30222
+    - name: replicaCount
+      value: 1
+    - name: ingress.enabled
+      value: true
+  
+  # Nginx Ingress Controller specification
+  - name: nginx
+    labels:
+      key: nginx
+      app: nginx
+
+    chart: stable/nginx-ingress
+    # version: 0.1.0
+    set:
+    - name: controller.service.type
+      value: NodePort
+    - name: controller.service.nodePorts.http
+      value: 30111
+
+# kubectl run postgresql-client \
+# --rm --tty -i --restart='Never' \ 
+# --namespace default \
+# --image docker.io/bitnami/postgresql:11.7.0-debian-10-r82 \
+# --env="PGPASSWORD=password" \
+# --command -- psql --host postgresql -U micro -d microservice -p 5432
+
