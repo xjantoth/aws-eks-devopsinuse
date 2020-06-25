@@ -46,18 +46,9 @@
  - [35. Explore backend part of the setup](#35-explore-backend-part-of-the-setup)
  - [36. Push docker images to docker hub](#36-push-docker-images-to-docker-hub)
  - [37. Install helm and helmfile binaries](#37-install-helm-and-helmfile-binaries)
- - [38. Creating backend Python Flask helmchart dependent on PostgreSQL database](#38-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)
- - [39. Creating frontend React app helmchart](#39-creating-frontend-react-app-helmchart)
- - [40. Deploy backend helmchart](#40-deploy-backend-helmchart)
- - [41. Deploy your frontend helmchart](#41-deploy-your-frontend-helmchart)
- - [42. Deploy Nginx Ingress Controller](#42-deploy-nginx-ingress-controller)
- - [43. Deploy entire Infrastructure via helmfile binary](#43-deploy-entire-infrastructure-via-helmfile-binary)
- - [44. Terraform destroy fails](#44-terraform-destroy-fails)
- - [45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile](#45-helmfile-selectors-and-removing-nodeport-options-from-backend-and-frontend-release-specification-in-helmfile)
- - [46. Connect to frontend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-frontend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)
 
 <!-- - [1. Introduction](#1-introduction)-->
-### 1. Introduction
+### Introduction to Part 2 of this course
 
 ![](img/devopsinuse.png)
 
@@ -2529,8 +2520,8 @@ https://github.com/roboll/helmfile/releases/download/v0.116.0/helmfile_linux_amd
 sudo chmod +x /usr/bin/helmfile
 ```
 
-<!-- - [38. Creating backend Python Flask helmchart dependent on PostgreSQL database](#38-creating-backend-python-flask-helmchart-dependent-on-postgresql-database)-->
-### 38. Creating backend Python Flask helmchart dependent on PostgreSQL database
+<!-- - [38. Creating backend backend helm chart Part1](#38-creating-backend-backend-helm-chart-part1)-->
+### 38. Creating backend backend helm chart Part1
 
 **Create** backend helm chart from scatch
 
@@ -2539,36 +2530,72 @@ sudo chmod +x /usr/bin/helmfile
 # Creating "backend" helm chart
 cd backend/hc
 helm create backend
+
+# Take a look how it looks inside of backend/ helm chart
+tree -L 2 backend
+backend
+├── charts
+├── Chart.yaml
+├── templates
+│   ├── deployment.yaml
+│   ├── _helpers.tpl
+│   ├── hpa.yaml
+│   ├── ingress.yaml
+│   ├── NOTES.txt
+│   ├── serviceaccount.yaml
+│   ├── service.yaml
+│   └── tests
+└── values.yaml
+
 ```
 
 **Files** to be modified (done by running four `sed commands`):
 * `backend/Chart.yaml`
-* `backend/charts/postgresql/templates/statefulset.yaml`          (a child helm chart file)
-* `backend/charts/postgresql/templates/statefulset-slaves.yaml`   (a child helm chart file)
 * `backend/values.yaml`
 * `backend/templates/service.yaml`
 * `backend/templates/deployment.yaml`
 * `backend/templates/secret.yaml` (completly new file)
 * `backend/templates/_helpers.tpl` (append at the and of this file)
 
+
+<!-- - [39. Modify Chart yaml file for backend helm chart](#39-modify-chart-yaml-file-for-backend-helm-chart)-->
+### 39. Modify Chart yaml file for backend helm chart
+
 **Shape** your `Chart.yaml` file:
 
 ```bash
 # Adding custom description to Chart.yaml file
 sed -E \
--e 's/^(description:).*/\1 Backend Flask app helmchart/' \
+-e 's/^(description:).*/\1 Backend Flask app helm chart/' \
 -e 's/^(appVersion:).*/\1 v1.0.0 /' \
 -e '$a  \\ndependencies: \n- name: postgresql \n  version: "8.10.8" \n  repository: "https://charts.bitnami.com/bitnami" \n' \
 -i backend/Chart.yaml
 ```
 
-Download **postgresql** helm chart to a `backend/charts` folder and fix **apiVersion** errors in advance
+Adding **bitnami** `helm chart repository` to my **local**
+
+```bash
+helm repo list
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+# Determine latest version of bitnami helm chart
+helm search repo bitnami/postgresql -l | head
+NAME                    CHART VERSION   APP VERSION     DESCRIPTION
+bitnami/postgresql      8.10.8          11.8.0          Chart for PostgreSQL, an object-relational data...
+bitnami/postgresql      8.10.7          11.8.0          Chart for PostgreSQL, an object-relational data...
+bitnami/postgresql      8.10.6          11.8.0          Chart for PostgreSQL, an object-relational data...
+```
+
+**Run** `helm dependency update` for **postgresql** helm chart
 
 ```bash
 # Downloads helm chart: to charts/ folder
 cd backend && helm dependency update && cd ..
 ```
 
+
+<!-- - [40. Modify values yaml file for backend helm chart](#40-modify-values-yaml-file-for-backend-helm-chart)-->
+### 40. Modify values yaml file for backend helm chart
 **Setup** file: `backend/values.yaml` within **backend** helm chart
 
 ```bash
@@ -2623,6 +2650,9 @@ postgresql:
 EOF
 ```
 
+<!-- - [41. Modify service yaml file for backend helm chart](#41-modify-service-yaml-file-for-backend-helm-chart)-->
+### 41. Modify service yaml file for backend helm chart
+
 **Do some little** changes in file: `backend/templates/service.yaml`
 ```bash
 # Setup "containerPort" in file: "backend/templates/service.yaml" 
@@ -2632,6 +2662,9 @@ sed -E \
 -i backend/templates/service.yaml
 ```
 
+
+<!-- - [42. Modify deployment yaml file for backend helm chart](#42-modify-deployment-yaml-file-for-backend-helm-chart)-->
+### 42. Modify deployment yaml file for backend helm chart
 **Do another little** changes in file: `backend/templates/deployment.yaml`
 
 ```bash
@@ -2646,6 +2679,9 @@ sed -E \
 -e '/^.*image:.*/a \ \ \ \ \ \ \ \ \ \ {{- include "helpers.list-env-variables" . | indent 10 }}' \
 -i backend/templates/deployment.yaml
 ```
+
+<!-- - [43. Create brand new secret yaml file for backend helm chart](#43-create-brand-new-secret-yaml-file-for-backend-helm-chart)-->
+### 43. Create brand new secret yaml file for backend helm chart
 **Create** a completly new file: `backend/templates/secret.yaml`
 
 ```bash
@@ -2664,6 +2700,8 @@ data:
 EOF
 ```
 
+<!-- - [44. Create brand new secret yaml file for backend helm chart](#44-create-brand-new-secret-yaml-file-for-backend-helm-chart)-->
+### 44. Create brand new secret yaml file for backend helm chart
 **Define and append** new variable in file: `backend/templates/_helpers.tpl`
 
 ```bash
@@ -2685,6 +2723,9 @@ Create the looper to define secret mounts as ENV variables
 {{- end}}
 EOF
 ```
+
+<!-- - [45. Learn how to template backend helm chart](#45-learn-how-to-template-backend-helm-chart)-->
+### 45. Learn how to template backend helm chart
 **Learn** how to template helm chart with colors
 ```bash
 # Little nice feature to make your work more colorful
@@ -2697,15 +2738,14 @@ highlight -S yaml <(helm template backend \
 backend)
 ```
 
-**Check** for potential errors by running `helm lint <helmchart-name>`
+**Check** for potential errors by running `helm lint <helm chart-name>`
 ```bash
 # Check for potential errors
 helm lint backend
 ```
 
 
-<!-- - [39. Creating frontend React app helmchart](#39-creating-frontend-react-app-helmchart)-->
-### 39. Creating frontend React app helmchart
+### 46. Creating frontend React app helm chart
 
 **Create** frontend helm chart
 ```bash
@@ -2724,7 +2764,7 @@ helm create frontend
 ```bash
 # Adding custom description to Chart.yaml file
 sed -E \
--e 's/^(description:).*/\1 Frontend React app helmchart/' \
+-e 's/^(description:).*/\1 Frontend React app helm chart/' \
 -e 's/^(appVersion:).*/\1 v1.0.0 /' \
 -i frontend/Chart.yaml
 ```
@@ -2783,8 +2823,7 @@ helm lint frontend
 ```
 
 
-<!-- - [40. Deploy backend helmchart](#40-deploy-backend-helmchart)-->
-### 40. Deploy backend helmchart
+### 47. Deploy backend helm chart
 
 **Reminder** how to start AWS EKS cluster by terraform:
 
@@ -2855,10 +2894,10 @@ aws eks --region eu-central-1 update-kubeconfig --name diu-eks-cluster --profile
 ```
 
 
-**Deploy** backend helmchart to AWS EKS cluster
+**Deploy** backend helm chart to AWS EKS cluster
 
 ```bash
-# Example how to deploy backend helmchart
+# Example how to deploy backend helm chart
 helm install backend \
 --set service.type=NodePort \
 --set service.nodePort=30333 \
@@ -2893,12 +2932,11 @@ curl -s -X DELETE "http://11.22.33.44:30333/api/ipaddress?id=7" | jq
 ```
 
 
-<!-- - [41. Deploy your frontend helmchart](#41-deploy-your-frontend-helmchart)-->
-### 41. Deploy your frontend helmchart
+### 48. Deploy your frontend helm chart
 
 **Deploy** frontend helm chart to a Kubernetes cluster
 ```bash
-# Example how to deploy front-end helmchart
+# Example how to deploy front-end helm chart
 helm install frontend \
 --set service.type=NodePort \
 --set service.nodePort=30222 \
@@ -2912,8 +2950,7 @@ frontend
 
 
 
-<!-- - [42. Deploy Nginx Ingress Controller](#42-deploy-nginx-ingress-controller)-->
-### 42. Deploy Nginx Ingress Controller
+### 49. Deploy Nginx Ingress Controller
 
 **List all helm deployments** within AWS EKS cluster
 ```bash
@@ -2978,8 +3015,7 @@ kubectl exec -it nginx-nginx-ingress-controller-c5ffff6df-7hnnk -- cat nginx.con
 https://aws.amazon.com/premiumsupport/knowledge-center/eks-delete-cluster-issues/
 
 
-<!-- - [43. Deploy entire Infrastructure via helmfile binary](#43-deploy-entire-infrastructure-via-helmfile-binary)-->
-### 43. Deploy entire Infrastructure via helmfile binary
+### 50. Deploy entire Infrastructure via helmfile binary
 
 **Delete** your helm deployments
 ```bash
@@ -3100,8 +3136,7 @@ helmfile -f  hf-infrastracture.yaml sync
 helmfile -f  hf-infrastracture.yaml destroy
 ```
 
-<!-- - [44. Terraform destroy fails](#44-terraform-destroy-fails)-->
-### 44. Terraform destroy fails
+### 51. Terraform destroy fails
 **Delete problematic AWS ENI** interface for **eks-remoteAccess-XYZ** Security Group and corresponfing **eni-111111111111**
 
 ```bash
@@ -3132,8 +3167,7 @@ aws_subnet.this[1]: Destroying... [id=subnet-06aab122584ff2903]
 ...
 ```
 
-<!-- - [45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile](#45-helmfile-selectors-and-removing-nodeport-options-from-backend-and-frontend-release-specification-in-helmfile)-->
-### 45. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile
+### 52. Helmfile selectors and removing NodePort options from backend and frontend release specification in helmfile
 
 * **helmfile**'s `selectors` brings a lot of flexibility to Kubernetes deployments
 * allows to **install**, **delete**, **template** particular helm deployments individually
@@ -3251,8 +3285,7 @@ helmfile --selector key=nginx -f  hf-infrastracture-without-backend-frontend-nod
 helmfile --selector app=nginx -f  hf-infrastracture-without-backend-frontend-nodeports.yaml sync  
 ```
 
-<!-- - [46. Connect to frontend and backend applications from inside of Nginx ingress controller pod](#46-connect-to-frontend-and-backend-applications-from-inside-of-nginx-ingress-controller-pod)-->
-### 46. Connect to frontend and backend applications from inside of Nginx ingress controller pod
+### 53. Connect to frontend and backend applications from inside of Nginx ingress controller pod
 
 ![](img/nginx-3.png)
 
@@ -3403,7 +3436,7 @@ curl -X POST   http://localhost:80/api/ipaddress
 curl -X DELETE "http://localhost:80/api/ipaddress?id=2"
 ```
 
-### 47. Deploy whole setup with Persistend storage for PostgreSQL database
+### 54. Deploy whole setup with Persistend storage for PostgreSQL database
 
 Adjust `/etc/hosts` file if you have not done it already
 
