@@ -2520,8 +2520,8 @@ https://github.com/roboll/helmfile/releases/download/v0.116.0/helmfile_linux_amd
 sudo chmod +x /usr/bin/helmfile
 ```
 
-<!-- - [38. Creating backend backend helm chart](#38-creating-backend-backend-helm-chart)-->
-### 38. Creating backend backend helm chart
+<!-- - [38. Creating backend helm chart](#38-creating-backend-helm-chart)-->
+### 38. Creating backend helm chart
 
 **Create** backend helm chart from scatch
 
