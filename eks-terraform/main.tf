@@ -44,8 +44,8 @@ data "aws_availability_zones" "default" {
 #
 ## Uncomment to create AWS EKS cluster (Kubernetes control plane) - start
 ## EKS_CLUSTER_END
-####
-####
+#####
+#####
 ## EKS_NODE_GROUP_START
 ### ---------------------------------------------------------------------
 ###      Kubernetes AWS EKS node group (Kubernetes nodes)
