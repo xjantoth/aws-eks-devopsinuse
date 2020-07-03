@@ -2700,8 +2700,8 @@ data:
 EOF
 ```
 
-<!-- - [44. Create brand new secret yaml file for backend helm chart](#44-create-brand-new-secret-yaml-file-for-backend-helm-chart)-->
-### 44. Create brand new secret yaml file for backend helm chart
+<!-- - [44. Create helper function in helpers tpl file](#44-create-helper-function-in-helpers-tpl-file)-->
+### 44. Create helper function in helpers tpl file
 **Define and append** new variable in file: `backend/templates/_helpers.tpl`
 
 ```bash
@@ -2726,14 +2726,59 @@ EOF
 
 <!-- - [45. Learn how to template backend helm chart](#45-learn-how-to-template-backend-helm-chart)-->
 ### 45. Learn how to template backend helm chart
+
 **Learn** how to template helm chart with colors
 ```bash
+# Template backend helm chart
+helm template backend \
+--set service.type=NodePort  \
+--set service.nodePort=30111 \
+--set image.containerPort=8000 \
+--set ingress.enabled=true \
+backend
+
+# Template "templates/ingress.yaml" file from backend helm chart
+helm template backend \
+--show-only templates/ingress.yaml \
+--set service.type=NodePort  \
+--set service.nodePort=30111 \
+--set image.containerPort=8007 \
+--set ingress.enabled=true \
+backend
+
+# Template "templates/deployment.yaml" file from backend helm chart
+helm template backend \
+--show-only templates/deployment.yaml \
+--set service.type=NodePort  \
+--set service.nodePort=30111 \
+--set image.containerPort=8011 \
+--set ingress.enabled=true \
+backend
+
+# Template "templates/service.yaml" file from backend helm chart
+helm template backend \
+--show-only templates/service.yaml \
+--set service.type=NodePort  \
+--set service.nodePort=30111 \
+--set image.containerPort=9000 \
+--set ingress.enabled=true \
+backend
+
+# Template "templates/secret.yaml" file from backend helm chart
+helm template backend \
+--show-only templates/secret.yaml \
+--set service.type=NodePort  \
+--set service.nodePort=30111 \
+--set image.containerPort=12 \
+--set ingress.enabled=true \
+backend
+
 # Little nice feature to make your work more colorful
 highlight -S yaml <(helm template backend \
 --show-only templates/ingress.yaml \
 --set service.type=NodePort  \
 --set service.nodePort=30111 \
---set image.containerPort=7 \
+--set image.containerPort=8000 \
 --set ingress.enabled=true \
 backend)
 ```
@@ -3458,6 +3503,7 @@ export PSQL_DB_NAME="microservice"
 export PSQL_DB_ADDRESS="backend-postgresql"
 export PSQL_DB_PORT="5432"
 ```
+
 
 
 
