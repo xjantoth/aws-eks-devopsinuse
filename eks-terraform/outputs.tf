@@ -1,13 +1,13 @@
-output "vpc_id" {
-  description = "AWS vpc id"
-  value       = data.aws_vpc.default.id
-}
-
-output "aws_availability_zones" {
-  description = "AWS availability zones"
-  value       = { for i, j in data.aws_availability_zones.default : i => j }
-}
-
+#output "vpc_id" {
+#  description = "AWS vpc id"
+#  value       = data.aws_vpc.default.id
+#}
+#
+#output "aws_availability_zones" {
+#  description = "AWS availability zones"
+#  value       = { for i, j in data.aws_availability_zones.default : i => j }
+#}
+#
 ## -----------------------------------------------------
 ## Uncomment "particular parts" of this file if executing
 ## this code partially - otherwise uncommnet all at once

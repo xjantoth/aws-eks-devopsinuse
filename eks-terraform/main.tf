@@ -8,9 +8,9 @@ data "aws_vpc" "default" {
   default = "true"
 }
 
-data "aws_subnet_ids" "default" {
-  vpc_id = data.aws_vpc.default.id
-}
+#data "aws_subnets" "default" {
+#  vpc_id = data.aws_vpc.default.id
+#}
 
 data "aws_availability_zones" "default" {
   state = "available"
@@ -29,7 +29,7 @@ data "aws_availability_zones" "default" {
 #
 #  vpc_config {
 #    # subnet_ids = ["${aws_subnet.example1.id}", "${aws_subnet.example2.id}"]
-#    # security_group_ids = list(aws_security_group.eks_cluster.id)
+#    # security_group_ids = [aws_security_group.eks_cluster.id]
 #    subnet_ids = [for subnet in [for value in aws_subnet.this : value] : subnet.id]
 #  }
 #
@@ -44,8 +44,8 @@ data "aws_availability_zones" "default" {
 #
 ## Uncomment to create AWS EKS cluster (Kubernetes control plane) - start
 ## EKS_CLUSTER_END
-######
-######
+#######
+#######
 ## EKS_NODE_GROUP_START
 ### ---------------------------------------------------------------------
 ###      Kubernetes AWS EKS node group (Kubernetes nodes)
@@ -77,7 +77,7 @@ data "aws_availability_zones" "default" {
 #
 #  remote_access {
 #    ec2_ssh_key               = aws_key_pair.this.key_name
-#    source_security_group_ids = list(aws_security_group.eks_cluster_node_group.id)
+#    source_security_group_ids = [aws_security_group.eks_cluster_node_group.id]
 #  }
 #
 #  # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
@@ -103,7 +103,7 @@ data "aws_availability_zones" "default" {
 #  from_port         = each.value
 #  to_port           = each.value
 #  protocol          = "tcp"
-#  cidr_blocks       = list("0.0.0.0/0")
+#  cidr_blocks       = ["0.0.0.0/0"]
 #  security_group_id = aws_eks_node_group.this.resources[0].remote_access_security_group_id
 #
 #  depends_on = [
